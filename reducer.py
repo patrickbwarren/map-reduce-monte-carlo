@@ -13,7 +13,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
 
-# Copyright (c) 2020 Patrick B Warren <patrickbwarren@gmail.com>.
+# Copyright (c) 2020 Patrick B Warren <patrickbwarren@gmail.com>
+# apart from where otherwise stated.
 
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
