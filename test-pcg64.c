@@ -18,20 +18,47 @@ You should have received a copy of the GNU General Public License
 along with this file.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* Test PCG64 independent random number streams by emitting 100,000
-   pairs of random doubles */
+/* Test PCG64 independent random number streams */
+
+/* The options in here are -s sets the seed, -n sets the number of
+random doubles, and -m sets the number of streams. */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <getopt.h>
 #include "pcg64.h"
 
+static struct option long_options[] = {
+  {"seed",    required_argument, 0, 's'},
+  {"nrandom",  required_argument, 0, 'n'},
+  {"mstreams",  required_argument, 0, 'm'},
+  {0, 0, 0, 0}
+};
+
 int main(int argc, char** argv) {
-  int i, n = 100000;
-  pcg64_random_t rng1, rng2;
-  pcg64_srandom_r(&rng1, 12345ULL, 0ULL);
-  pcg64_srandom_r(&rng2, 12345ULL, 1ULL);
-  for (i=0; i<n; i++) {
-    printf("%0.17g\t", pcg64_random_d(&rng1));
-    printf("%0.17g\n", pcg64_random_d(&rng2));
+  int i, k, c;
+  int mstreams = 2;
+  int nrandom = 1000;
+  int option_index = 0;
+  uint64_t seed = 12345ULL;
+  pcg64_random_t *rng; /* for an array of these things */
+  while (1) {
+    c = getopt_long(argc, argv, "s:n:m:", long_options, &option_index);
+    if (c == -1) break;
+    switch (c) {
+    case 's': seed = (uint64_t)atoi(optarg); break;
+    case 'n': nrandom = atoi(optarg); break;
+    case 'm': mstreams = atoi(optarg); break;
+    }
+  }
+  rng = (pcg64_random_t *)malloc(mstreams*sizeof(pcg64_random_t));
+  for (i=0; i<mstreams; i++) {
+    pcg64_srandom_r(&rng[i], seed, (uint64_t)i); /* fixed seed, seq advances */
+  }
+  for (k=0; k<nrandom; k++) {
+    for (i=0; i<mstreams; i++) {
+      printf("%0.17g%c", pcg64_random_d(&rng[i]), (i<mstreams-1)?'\t':'\n');
+    }
   }
   return 0;
 }
