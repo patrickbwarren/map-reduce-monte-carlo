@@ -23,13 +23,27 @@
 Eg: ./reducer.py --header=mytest --njobs=10
 """
 
+import os
 import argparse
+
+# The following code snippet comes from
+# https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse
+
+def add_bool_arg(parser, name, default=False, help=None):
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument('--' + name, dest=name, action='store_true',
+                       help=help + (' (default)' if default else ''))
+    group.add_argument('--no-' + name, dest=name, action='store_false',
+                       help="don't " +help + (' (default)' if not default else ''))
+    parser.set_defaults(**{name:default})
 
 # The arguments here are used to construct the list of data files
 
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
 parser.add_argument('--njobs', default=None, type=int, help='the number of condor jobs')
+parser.add_argument('--exts', default="['.out', '.err']", help='file extensions for cleaning')
+add_bool_arg(parser, 'clean', default=False, help='clean up intermediate files')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
@@ -57,8 +71,8 @@ def process(data_file):
 for data_type in data_types:
     data = {}
     if args.njobs:
-        for i in range(args.njobs):
-            process(f'{args.header}_{data_type}__{i}.dat')
+        for k in range(args.njobs):
+            process(f'{args.header}_{data_type}__{k}.dat')
     else:
         process(f'{args.header}_{data_type}.dat')
     data_file = f'{args.header}_{data_type}.dat'
@@ -72,8 +86,14 @@ for data_type in data_types:
     if args.verbose:
         print(data_type + ' > ' + data_file)
 
-# we need to clean up by removing the .err and .out and data files
-# so we need an argment for clean logs and clean data
-# and suggest an argument for the log file extensions ['.out', '.err']
+        
+# Clean up output and error files
+
+if args.clean:
+    for k in range(args.njobs):
+        for ext in eval(args.exts):
+            os.remove(f'{args.header}__{k}.{ext[1:]}')
+        for data_type in data_types:
+            os.remove(f'{args.header}_{data_type}__{k}.dat')
     
 # end of script
