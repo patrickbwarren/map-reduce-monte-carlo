@@ -16,19 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with MRMC.  If not, see <http://www.gnu.org/licenses/>.
 
-default_target : MRMC
+default_target : ThrowDarts
 
-MRMC_wrap.c : MRMC.i mrmc.h
-	swig -python MRMC.i
+ThrowDarts_wrap.c : ThrowDarts.i throw_darts.h
+	swig -python ThrowDarts.i
 
-MRMC : setup.py MRMC.i MRMC_wrap.c mrmc.c mrmc.h
+ThrowDarts : setup.py ThrowDarts.i ThrowDarts_wrap.c throw_darts.c throw_darts.h
 	python setup.py build_ext --inplace
 
 test-pcg64 : pcg64.h test-pcg64.c
 	gcc -Wall -O3 -o $@ $@.c
 
 clean :
-	rm -f MRMC.py MRMC_wrap.c _MRMC*.so
+	rm -f ThrowDarts.py ThrowDarts_wrap.c _ThrowDarts*.so
 	rm -rf build
 	rm -f test-pcg64
 

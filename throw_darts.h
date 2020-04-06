@@ -1,13 +1,13 @@
 /**
-This file is part of MRMC - a demonstrator for Map/Reduce Monte-Carlo
+This file is part of a demonstrator for Map/Reduce Monte-Carlo
 methods.
 
-MRMC is free software: you can redistribute it and/or modify it under
+This is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free
 Software Foundation, either version 3 of the License, or (at your
 option) any later version.
 
-MRMC is distributed in the hope that it will be useful, but WITHOUT
+This is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 for more details.
@@ -15,11 +15,11 @@ for more details.
 Copyright (c) 2020 Patrick B Warren <patrickbwarren@gmail.com>.
 
 You should have received a copy of the GNU General Public License
-along with MRMC.  If not, see <http://www.gnu.org/licenses/>.
+along with this file.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef MRMC_H
-#define MRMC_H
+#ifndef THROW_DARTS_H
+#define THROW_DARTS_H
 
 void initialise_target(int, int, int);
 void reset();
@@ -29,4 +29,4 @@ void gr_write(char *, char *);
 void report();
 void set_verbosity(int);
 
-#endif /* MRMC_H */
+#endif /* THROW_DARTS_H */
