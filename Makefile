@@ -34,5 +34,3 @@ clean :
 
 pristine : clean
 	rm -f *~
-
-# End of Makefile
