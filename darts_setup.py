@@ -18,14 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-setup.py file for Map/Reduce Monte-Carlo darts example
-"""
+"""setup.py file for Map/Reduce Monte-Carlo darts example"""
 
 from distutils.core import setup, Extension
 
-ThrowDarts_module = Extension('_ThrowDarts',
-                              sources=['ThrowDarts_wrap.c', 'throw_darts.c'])
+ThrowDarts_module = Extension('_ThrowDarts', sources=['ThrowDarts_wrap.c', 'throw_darts.c'])
 
 setup(name='ThrowDarts',
       version='1.0',

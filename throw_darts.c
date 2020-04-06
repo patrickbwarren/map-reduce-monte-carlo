@@ -1,4 +1,4 @@
-/**
+/*
 This file is part of a demonstrator for Map/Reduce Monte-Carlo
 methods.
 
@@ -16,7 +16,7 @@ Copyright (c) 2020 Patrick B Warren <patrickbwarren@gmail.com>.
 
 You should have received a copy of the GNU General Public License
 along with this file.  If not, see <http://www.gnu.org/licenses/>.
-**/
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,11 +40,11 @@ static double delg;    /* bin spacing in r */
 
 /* Initialise with seed and sequence, and number of bins */
 
-void initialise_target(int iseed, int iseq, int nbinss) {
+void initialise_target(int iseed, int iseq, int inbins) {
   seed = (uint64_t)iseed;
   seq = (uint64_t)iseq;
   pcg64_srandom_r(&rng, seed, seq);
-  nbins = nbinss; delg = 1.0 / nbins;
+  nbins = inbins; delg = 1.0 / nbins;
   if ((gr = (int *) malloc((1+nbins)*sizeof(int))) == NULL) {
     fprintf(stderr, "no space for gr at line %i in %s\n", __LINE__, __FILE__);
     exit(1);
@@ -60,15 +60,15 @@ void reset() {
   for (i=0; i<(1+nbins); i++) gr[i] = 0;
 }
 
-/* Throw ntrial darts at the target and record the cumulative number
-   of successes and bin the distance from corner by r^2*/
+/* Throw ntrial darts at the target of unit radius and record the
+   cumulative number of successes; bin the distance from centre*/
 
 void throw(int n) {
   int i, ig, c = 0;
   double x, y, r2;
   for (i=0; i<n; i++) {
-    x = pcg64_random_d(&rng);
-    y = pcg64_random_d(&rng);
+    x = 2.0 * pcg64_random_d(&rng) - 1.0;
+    y = 2.0 * pcg64_random_d(&rng) - 1.0;
     r2 = x*x + y*y;
     if (r2 < 1.0) {
       ig = (int)(sqrt(r2)/delg); c++;
@@ -80,17 +80,18 @@ void throw(int n) {
   nsuccess += c; ntrial += n;
 }
 
-/* Return the current estimate for pi */
+/* Return the current estimate for pi (the target area is pi, and the
+   square domain is area 4) */
 
 double pi_estimate() {
-  return 4.0 * (double)nsuccess / (double)ntrial;
+  return 4.0 * (double)(nsuccess) / (double)ntrial;
 }
 
 /* Radial distribution function from centre of target */
 
 void gr_write(char *filename, char *mode) {
   int ig, norm;
-  double r, area_shell, g;
+  double r, g, area_shell, area_square = 4.0;
   FILE *fp;
   if ((fp = fopen(filename, mode)) == NULL) {
     printf("gr_write: %s could not be opened\n", filename); 
@@ -98,8 +99,8 @@ void gr_write(char *filename, char *mode) {
     norm = 0; for (ig=0; ig<=nbins; ig++) norm += gr[ig];
     for (ig=0; ig<nbins; ig++) {
       r = delg * (ig+0.5);
-      area_shell = 0.25 * M_PI*((ig+1)*(ig+1) - ig*ig)*delg*delg;
-      g = (double)gr[ig] / ((double)norm * area_shell);
+      area_shell = M_PI*((ig+1)*(ig+1) - ig*ig)*delg*delg;
+      g = (double)gr[ig] * area_square / ((double)norm * area_shell);
       fprintf(fp, "gr__%g\t%g\n", r, g);
     }
     fclose(fp);

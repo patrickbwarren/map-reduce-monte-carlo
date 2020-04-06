@@ -16,24 +16,27 @@
 # You should have received a copy of the GNU General Public License
 # along with MRMC.  If not, see <http://www.gnu.org/licenses/>.
 
-# python3 picalc.py --header-mytest --seed=12345 --nsamp=100 --ntrial=10^6 -v
+"""Throw darts at a target to estimate pi, and measure radial distribution.
+
+Eg: ./throw_darts.py --header=mytest --seed=12345 --ntrial=100 --nthrow=10^6 -v
+"""
 
 import argparse
 import ThrowDarts as darts
 
 # Parse the argument list
 
-parser = argparse.ArgumentParser(description='Map/Reduce Monte-Carlo example to estimate pi')
+parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--header', action='store', required=True, help='set the name of the output and/or job files')
 parser.add_argument('--seed', action='store', default=12345, type=int, help='the RNG seed, default 12345')
-parser.add_argument('--process', action='store', default=None, type=int, help='process number, default none')
-parser.add_argument('--nsamp', action='store', default=10, type=int, help='number of samples, defalut 10')
-parser.add_argument('--ntrial', action='store', default='1000', help='number of trials per sample, default 1000')
+parser.add_argument('--process', action='store', default=None, type=int, help='process number, default None')
+parser.add_argument('--ntrial', action='store', default=10, type=int, help='number of trials, default 10')
+parser.add_argument('--nthrow', action='store', default='1000', help='number of throws per trial, default 1000')
 parser.add_argument('--nbins', action='store', default='20', type=int, help='number of bins in rdf, default 20')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
-ntrial = eval(args.ntrial.replace('^', '**')) # catch 10^6 etc
+nthrow = eval(args.nthrow.replace('^', '**')) # catch 10^6 etc
 
 darts.set_verbosity(args.verbose)
 
@@ -44,39 +47,38 @@ sub = '' if args.process is None else '__%d' % args.process
 for data_type in ['pi', 'gr']:
     files[data_type] = '_'.join([args.header, data_type]) + sub + '.dat'
     
-darts.initialise_target(args.seed,
-                        0 if args.process is None else args.process,
-                        args.nbins)
+darts.initialise_target(args.seed, 0 if args.process is None else args.process, args.nbins)
 
-# Run a number of simulation samples.
+# Run a number of simulations.
 
-vals = [0] * args.nsamp # initialise array for results
+vals = [0] * args.ntrial # initialise array to save pi estimates
 
-for k in range(0, args.nsamp):
+for k in range(0, args.ntrial):
     darts.reset()
-    darts.throw(ntrial)
+    darts.throw(nthrow)
     vals[k] = darts.pi_estimate()
     darts.gr_write(files['gr'], 'a' if k else 'w') 
     if args.verbose > 1:
         darts.report()
 
-# Save the results to a file
+# Save the pi estimate results to the 'pi' file
 
 with open(files['pi'], 'w') as f:
     for x in vals:
         f.write('pi\t' + str(x) + '\n')
 
-# Summarise the run using f-strings if args.process is None or 0
+# Summarise the run to a log file using f-strings and a line 'data collected'
 
-if not args.process:
+run_time = f'python {__file__} --header={args.header} --seed={args.seed}' \
+           f' --ntrial={args.ntrial} --nthrow={args.nthrow} --nbins={args.nbins}'
 
+if not args.process: # true if args.process is None or 0
     with open(args.header + '.log', 'w') as f:
-
-        run_time = f'python {__file__} --header={args.header} --seed={args.seed}' \
-                   f' --nsamp={args.nsamp} --ntrial={args.ntrial} --nbins={args.nbins}'
-
         f.write(run_time + '\n')
-        
         f.write('data collected for : ' + ' '.join(files.keys()) + '\n')
+
+if args.verbose:
+    print(run_time)
+    print('Generated : ' + args.header + '.log, ' + ', '.join(files.values()))
 
 # End of script

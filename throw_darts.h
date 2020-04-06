@@ -1,4 +1,4 @@
-/**
+/*
 This file is part of a demonstrator for Map/Reduce Monte-Carlo
 methods.
 
@@ -16,7 +16,7 @@ Copyright (c) 2020 Patrick B Warren <patrickbwarren@gmail.com>.
 
 You should have received a copy of the GNU General Public License
 along with this file.  If not, see <http://www.gnu.org/licenses/>.
-**/
+*/
 
 #ifndef THROW_DARTS_H
 #define THROW_DARTS_H
