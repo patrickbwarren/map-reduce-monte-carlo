@@ -74,17 +74,15 @@ else:
 # which have an extension in args.file_ext and where the file name
 # matches any of the modules in args.modules.
 
-extensions = eval(args.exts)
-
 file_list = [f.name for f in os.scandir() if f.is_file()] # names of all files in current directory
 
 if modules:
-    transfer_files = list(filter(lambda f: any(f.endswith(e) for e in extensions)
+    transfer_files = list(filter(lambda f: any(f.endswith(e) for e in eval(args.exts))
                                and any(m in f for m in modules), file_list))
 else:
     transfer_files = []
 
-transfer_files.append(args.script)
+transfer_files.append(args.script) # add the script itself to the list
 
 # Create the condor job file
 
@@ -130,14 +128,15 @@ if not args.reduce: # we just need to run the condor job
 
     launch_command = 'condor_submit ' + condor_job
 
-else: # otherwise create a DAGMan master job
+else: # create a DAGMan master job
 
     dag_job = args.header + '__dag.job'
 
     opt_clean = '--clean' if args.clean else '--no-clean'
+    script = f'{sys.executable} reducer.py --header={args.header} --njobs={args.njobs} {opt_clean}'
 
-    dag = f"JOB A {condor_job}\n" \
-          f"SCRIPT POST A {sys.executable} reducer.py --header={args.header} --njobs={args.njobs} {opt_clean}"
+    dag = f'JOB A {condor_job}\n' \
+          f'SCRIPT POST A {script}'
 
     with open(dag_job, 'w') as f:
         f.write(dag + '\n')
@@ -153,5 +152,3 @@ if args.launch:
     subprocess.call(launch_command, shell=True)
 else:
     print(launch_command)
-
-# Write out some information if required
