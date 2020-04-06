@@ -27,12 +27,12 @@ along with this file.  If not, see <http://www.gnu.org/licenses/>.
 #include "throw_darts.h"
 
 static pcg64_random_t rng;   /* PCG64 random number generator */
-static uint64_t seed, seq;   /* The RNG seed and sequence */
-static int nsuccess, ntrial; /* Number of successes, trials */
+static uint64_t seed, seq;   /* The RNG seed and sequence, for reporting purposes */
 
 static int verbose = 0;
 
 /* Stuff to do with radial distribution function */
+/* The final bin records throws outside the target */
 
 static int *gr = NULL; /* Integer array for bin counts */
 static int nbins;      /* number of bins */
@@ -56,47 +56,45 @@ void initialise_target(int iseed, int iseq, int inbins) {
 
 void reset() {
   int i;
-  nsuccess = ntrial = 0;
   for (i=0; i<(1+nbins); i++) gr[i] = 0;
 }
 
-/* Throw ntrial darts at the target of unit radius and record the
-   cumulative number of successes; bin the distance from centre*/
+/* Throw n darts at the target of unit radius and bin by distance from
+   centre */
 
 void throw(int n) {
-  int i, ig, c = 0;
+  int i, ig;
   double x, y, r2;
   for (i=0; i<n; i++) {
     x = 2.0 * pcg64_random_d(&rng) - 1.0;
     y = 2.0 * pcg64_random_d(&rng) - 1.0;
     r2 = x*x + y*y;
-    if (r2 < 1.0) {
-      ig = (int)(sqrt(r2)/delg); c++;
-    } else {
-      ig = nbins;
-    }
+    if (r2 < 1.0) ig = (int)(sqrt(r2)/delg);
+    else ig = nbins;
     gr[ig]++;
   }
-  nsuccess += c; ntrial += n;
 }
 
-/* Return the current estimate for pi (the target area is pi, and the
-   square domain is area 4) */
+/* Return the current estimate for pi - the bin count are all inside
+   the target of area pi, and gr[nbins] counts those outside. */
 
 double pi_estimate() {
-  return 4.0 * (double)(nsuccess) / (double)ntrial;
+  int ig, ncount = 0;
+  double area_square = 4.0;
+  for (ig=0; ig<nbins; ig++) ncount += gr[ig];
+  return area_square * (double)(ncount) / (double)(ncount + gr[nbins]);
 }
 
 /* Radial distribution function from centre of target */
 
 void gr_write(char *filename, char *mode) {
-  int ig, norm;
+  int ig, norm = 0;
   double r, g, area_shell, area_square = 4.0;
   FILE *fp;
   if ((fp = fopen(filename, mode)) == NULL) {
     printf("gr_write: %s could not be opened\n", filename); 
   } else {
-    norm = 0; for (ig=0; ig<=nbins; ig++) norm += gr[ig];
+    for (ig=0; ig<=nbins; ig++) norm += gr[ig];
     for (ig=0; ig<nbins; ig++) {
       r = delg * (ig+0.5);
       area_shell = M_PI*((ig+1)*(ig+1) - ig*ig)*delg*delg;
@@ -111,9 +109,11 @@ void gr_write(char *filename, char *mode) {
 }
 
 void report() {
+  int ig, ncount = 0;
+  for (ig=0; ig<nbins; ig++) ncount += gr[ig];
   printf("uint64 seed = %#018" PRIx64 " = %" PRIu64 "ULL\n", seed, seed);
   printf("uint64 seq  = %#018" PRIx64 " = %" PRIu64 "ULL\n", seq, seq);
-  printf("nsuccess / ntrial = %i / %i\n", nsuccess, ntrial);
+  printf("nsuccess / nthrows = %i / %i\n", ncount, ncount + gr[nbins]);
 }
 
 void set_verbosity(int val) {

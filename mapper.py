@@ -18,29 +18,38 @@
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Wrapper to map jobs onto a condor cluster
+
+Eg: ./mapper.py throw_darts.py --header=mytest --seed=12345 --ntrial=10
+ --nthrow=10^6  --njobs=8 --module=ThrowDarts
+"""
+
 import os
 import argparse
 import subprocess
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("script", help="script to be run")
-parser.add_argument('--module', default=None, help='the supporting module(s)')
-parser.add_argument('--extensions', default="['.so', '.py']", help='set file extensions for modules')
-parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
+parser.add_argument('--module', default=None, help='supporting module(s), default None')
+parser.add_argument('--extensions', default="['.so', '.py']", help='file extensions for modules')
+parser.add_argument('--header', required=True, help='the name of the output and/or job files')
 parser.add_argument('--njobs', required=True, type=int, help='the number of condor jobs')
 parser.add_argument('--fast', action='store_true', help='if set, run with Mips > min mips')
 parser.add_argument('--min-mips', type=int, default=20000, help='min mips for fast option')
 parser.add_argument('--launch', action='store_true', help='if set, launch the condor DAGMan master job')
-parser.add_argument('--no-clean', action='store_true', help='if set, leave in place the individual condor job outputs')
+parser.add_argument('--no-clean', action='store_true', help='if set, leave in place the individual output files')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args, rest = parser.parse_known_args()
 
 # Extract a list of modules from the argument
 
-try:
-    modules = eval(args.module)
-except NameError:
-    modules = [args.module]
+if args.module:
+    try:
+        modules = eval(args.module)
+    except NameError:
+        modules = [args.module]
+else:
+    modules = []
 
 # Find the files to transfer associated with these modules.  After
 # this module_files will be a list (actually an iterable) of files in
@@ -49,7 +58,12 @@ except NameError:
 
 extensions = eval(args.extensions)
 file_list = [f.name for f in os.scandir() if f.is_file()] # names of all files in current directory
-module_files = filter(lambda f: any(f.endswith(e) for e in extensions) and any(m in f for m in modules), file_list)
+
+if modules:
+    module_files = filter(lambda f: any(f.endswith(e) for e in extensions)
+                          and any(m in f for m in modules), file_list)
+else:
+    module_files = []
 
 dag_job = args.header + '__dag.job'
 condor_job = args.header + '__condor.job'

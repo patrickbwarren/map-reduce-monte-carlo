@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Throw darts at a target to estimate pi, and measure radial distribution.
+"""Throw darts at a target to estimate pi, and measure radial distribution
 
 Eg: ./throw_darts.py --header=mytest --seed=12345 --ntrial=100 --nthrow=10^6 -v
 """
@@ -35,6 +35,7 @@ parser.add_argument('--process', action='store', default=None, type=int, help='p
 parser.add_argument('--ntrial', action='store', default=10, type=int, help='number of trials, default 10')
 parser.add_argument('--nthrow', action='store', default='1000', help='number of throws per trial, default 1000')
 parser.add_argument('--nbins', action='store', default='20', type=int, help='number of bins in rdf, default 20')
+parser.add_argument('--reduce', action='store_true', help='call reducer on the data files')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
@@ -77,10 +78,20 @@ run_time = f'python {__file__} --header={args.header} --seed={args.seed}' \
 if not args.process: # true if args.process is None or 0
     with open(args.header + '.log', 'w') as f:
         f.write(run_time + '\n')
-        f.write('data collected for : ' + ' '.join(files.keys()) + '\n')
+        f.write('data collected for: ' + ' '.join(files.keys()) + '\n')
+
+reducer_command = f'python reducer.py --header={args.header}'
 
 if args.verbose:
-    print(run_time)
-    print('Generated : ' + args.header + '.log, ' + ', '.join(files.values()))
+    print('Full command: ' + run_time)
+    if not args.reduce:
+        print('To reduce the data use: ' + reducer_command)
+    else:
+        print('Reduced with: ' + reducer_command)
+    print('Generated: ' + args.header + '.log, ' + ', '.join(files.values()))
+
+if args.reduce:
+    import subprocess
+    subprocess.call(reducer_command, shell=True)
 
 # End of script
