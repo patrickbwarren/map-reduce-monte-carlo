@@ -4,6 +4,7 @@ Provides a framework for high-throughput parallelisation of
 Monte-Carlo codes in a distributed computing environment, using the
 HTCondor scheduling system.
 
+To be completed ...
 
 ### Copying
 
@@ -23,13 +24,15 @@ along with this program.  If not, see
 
 ### Copyright
 
-Main code copyright &copy; 2015 Patrick B Warren.
+Copyright &copy; 2015 Patrick B Warren <patrickbwarren@gmail.com>.
 
-PCG64 Random Number Generator based on code:  
-Copyright &copy; 2014 Melissa O'Neill <oneill@pcg-random.org>  
-Copyright &copy; 2015 Robert Kern <robert.kern@gmail.com>
+The [PCG64 RNG](https://www.pcg-random.org/) is based on code at
+https://github.com/rkern/pcg64 and in the
+[NumPy source tree](https://github.com/numpy/numpy/tree/master/numpy/random)  
+Copyright &copy; 2014 Melissa O'Neill <oneill@pcg-random.org>.  
+Copyright &copy; 2015 Robert Kern <robert.kern@gmail.com>.
 
 ### Contact
 
-Email: patrickbwarren{at}gmail{dot}com
+Email: <patrickbwarren@gmail.com>
 
