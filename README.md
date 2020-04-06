@@ -22,9 +22,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+The file `pcg64.h` is licensed under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License. You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0.
+
 ### Copyright
 
-Copyright &copy; 2015 Patrick B Warren <patrickbwarren@gmail.com>.
+Copyright &copy; 2020 Patrick B Warren <patrickbwarren@gmail.com>.
 
 The [PCG64 RNG](https://www.pcg-random.org/) is based on code at
 https://github.com/rkern/pcg64 and in the
