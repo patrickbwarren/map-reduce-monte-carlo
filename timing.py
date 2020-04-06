@@ -26,8 +26,6 @@ Eg: ./timing.py header
 import argparse
 from datetime import timedelta
 
-# The arguments here are used to construct the list of data files
-
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument('header', help='the name of the output and/or job files')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
@@ -50,3 +48,5 @@ result = f'{dag_log}: total run time = {timedelta(seconds=total)}, ' \
          f'mean run time ({count} jobs) = {timedelta(seconds=int(total/count))}'
 
 print(result)
+
+# End of script

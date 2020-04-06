@@ -152,3 +152,5 @@ if args.launch:
     subprocess.call(launch_command, shell=True)
 else:
     print(launch_command)
+
+# End of script

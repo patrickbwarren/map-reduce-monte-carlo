@@ -30,3 +30,5 @@ setup(name='ThrowDarts',
       description="""Map/Reduce Monte-Carlo example""",
       ext_modules=[ThrowDarts_module],
       py_modules=["ThrowDarts"])
+
+# End of script

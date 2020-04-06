@@ -87,7 +87,6 @@ for data_type in data_types:
     if args.verbose:
         print(data_type + ' > ' + data_file)
 
-        
 # Clean up output and error files
 
 if args.clean:
@@ -96,5 +95,5 @@ if args.clean:
             os.remove(f'{args.header}__{k}.{ext[1:]}')
         for data_type in data_types:
             os.remove(f'{args.header}_{data_type}__{k}.dat')
-    
-# end of script
+
+# End of script
