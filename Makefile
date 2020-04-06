@@ -25,7 +25,7 @@ ThrowDarts : darts_setup.py ThrowDarts.i ThrowDarts_wrap.c throw_darts.c throw_d
 	python darts_setup.py build_ext --inplace
 
 test-pcg64 : pcg64.h test-pcg64.c
-	gcc -Wall -O3 -o $@ $@.c
+	gcc -Wall -O2 -o $@ $@.c
 
 clean :
 	rm -f ThrowDarts.py ThrowDarts_wrap.c _ThrowDarts*.so

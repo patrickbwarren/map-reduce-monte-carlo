@@ -31,10 +31,9 @@ http://www.apache.org/licenses/LICENSE-2.0.
 
 Copyright &copy; 2020 Patrick B Warren <patrickbwarren@gmail.com>.
 
-The file `pcg64.h` implementing the
-[PCG64 RNG](https://www.pcg-random.org/) is based on 
-https://github.com/rkern/pcg64 and on the
-[NumPy source](https://github.com/numpy/numpy/tree/master/numpy/random)  
+The [PCG64 RNG](https://www.pcg-random.org/) is based on 
+https://github.com/rkern/pcg64 and on 
+[NumPy](https://github.com/numpy/numpy/tree/master/numpy/random)  
 Copyright &copy; 2014 Melissa O'Neill <oneill@pcg-random.org>.  
 Copyright &copy; 2015 Robert Kern <robert.kern@gmail.com>.
 
