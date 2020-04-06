@@ -4,6 +4,8 @@
  * Copyright 2014 Melissa O'Neill <oneill@pcg-random.org>
  * Copyright 2015 Robert Kern <robert.kern@gmail.com>
  *
+ * Modification copyright 2020 Patrick B Warren <patrickbwarren@gmail.com>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,16 +35,13 @@ typedef __uint128_t pcg128_t;
 
 typedef struct {
   pcg128_t state;
-} pcg_state_128;
-
-typedef struct {
-  pcg128_t state;
   pcg128_t inc;
-} pcg_state_setseq_128;
+} pcg64_random_t;
 
-#define PCG_DEFAULT_MULTIPLIER_128 PCG_128BIT_CONSTANT(2549297995355413924ULL,4865540595714422341ULL)
-#define PCG_DEFAULT_INCREMENT_128  PCG_128BIT_CONSTANT(6364136223846793005ULL,1442695040888963407ULL)
-#define PCG_STATE_SETSEQ_128_INITIALIZER \
+#define PCG_DEFAULT_MULTIPLIER_128 PCG_128BIT_CONSTANT(2549297995355413924ULL, \
+						       4865540595714422341ULL)
+
+#define PCG64_INITIALIZER						\
   { PCG_128BIT_CONSTANT(0x979c9a98d8462005ULL, 0x7d3e9cb6cfe0549bULL),	\
       PCG_128BIT_CONSTANT(0x0000000000000001ULL, 0xda3e39cb94b95bdbULL) }
 
@@ -50,15 +49,17 @@ static inline uint64_t pcg_rotr_64(uint64_t value, unsigned int rot) {
   return (value >> rot) | (value << ((- rot) & 63));
 }
 
-static inline void pcg_setseq_128_step_r(pcg_state_setseq_128* rng) {
+static inline void pcg_setseq_128_step_r(pcg64_random_t* rng) {
   rng->state = rng->state * PCG_DEFAULT_MULTIPLIER_128 + rng->inc;
 }
 
 static inline uint64_t pcg_output_xsl_rr_128_64(pcg128_t state) {
-  return pcg_rotr_64(((uint64_t)(state >> 64u)) ^ (uint64_t)state, state >> 122u);
+  return pcg_rotr_64(((uint64_t)(state >> 64u)) ^
+		     (uint64_t)state, state >> 122u);
 }
 
-static inline void pcg_setseq_128_srandom_r(pcg_state_setseq_128* rng, uint64_t seed, uint64_t seq) {
+static inline void pcg64_srandom_r(pcg64_random_t* rng, uint64_t seed,
+				   uint64_t seq) {
   rng->state = 0U;
   rng->inc = ((__uint128_t)seq << 1u) | 1u;
   pcg_setseq_128_step_r(rng);
@@ -66,30 +67,24 @@ static inline void pcg_setseq_128_srandom_r(pcg_state_setseq_128* rng, uint64_t 
   pcg_setseq_128_step_r(rng);
 }
 
-static inline uint64_t pcg_setseq_128_xsl_rr_64_random_r(pcg_state_setseq_128* rng) {
+static inline uint64_t pcg64_random_r(pcg64_random_t* rng) {
   pcg_setseq_128_step_r(rng);
   return pcg_output_xsl_rr_128_64(rng->state);
 }
 
-static inline uint64_t pcg_setseq_128_xsl_rr_64_boundedrand_r(pcg_state_setseq_128* rng, uint64_t bound) {
+static inline uint64_t pcg64_boundedrand_r(pcg64_random_t* rng,
+					   uint64_t bound) {
   uint64_t threshold = -bound % bound;
   for (;;) {
-    uint64_t r = pcg_setseq_128_xsl_rr_64_random_r(rng);
+    uint64_t r = pcg64_random_r(rng);
     if (r >= threshold)
       return r % bound;
   }
 }
 
-static inline double pcg64_random_d(pcg_state_setseq_128* rng) {
-  uint64_t x = pcg_setseq_128_xsl_rr_64_random_r(rng);
+static inline double pcg64_random_d(pcg64_random_t* rng) {
+  uint64_t x = pcg64_random_r(rng);
   return (x >> 11) * (1.0 / 9007199254740992.0);
 }
-
-typedef pcg_state_setseq_128    pcg64_random_t;
-#define pcg64_random_r          pcg_setseq_128_xsl_rr_64_random_r
-#define pcg64_boundedrand_r     pcg_setseq_128_xsl_rr_64_boundedrand_r
-#define pcg64_srandom_r         pcg_setseq_128_srandom_r
-#define pcg64_advance_r         pcg_setseq_128_advance_r
-#define PCG64_INITIALIZER       PCG_STATE_SETSEQ_128_INITIALIZER
 
 #endif /* PCG64_H_INCLUDED */

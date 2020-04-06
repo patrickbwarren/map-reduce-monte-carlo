@@ -24,9 +24,13 @@ MRMC_wrap.c : MRMC.i mrmc.h
 MRMC : setup.py MRMC.i MRMC_wrap.c mrmc.c mrmc.h
 	python setup.py build_ext --inplace
 
+test-pcg64 : pcg64.h test-pcg64.c
+	gcc -Wall -O3 -o $@ $@.c
+
 clean :
 	rm -f MRMC.py MRMC_wrap.c _MRMC*.so
 	rm -rf build
+	rm -f test-pcg64
 
 pristine : clean
 	rm -f *~
