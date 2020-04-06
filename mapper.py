@@ -71,10 +71,10 @@ else:
 
 # Find the files to transfer associated with these modules.  After
 # this transfer_files will be a list of files in the current directory
-# which have an extension in args.file_ext and where the file name
+# which have an extension in args.exts and where the file name
 # matches any of the modules in args.modules.
 
-file_list = [f.name for f in os.scandir() if f.is_file()] # names of all files in current directory
+file_list = [f.name for f in os.scandir() if f.is_file()] # all files in current directory
 
 if modules:
     transfer_files = list(filter(lambda f: any(f.endswith(e) for e in eval(args.exts))
