@@ -6,9 +6,9 @@ HTCondor scheduling system.
 
 ### Outline
 
-> *In Hartree's opinion [ca 1951] all the calculations that would ever
-   be needed [in the UK] could be done on three digital computers.*
-   --- B. V. Bowden
+> In Hartree's opinion [ca 1951] all the calculations that would ever
+   be needed [in the UK] could be done on three digital computers.
+   &mdash; *B. V. Bowden*
 
 A typical Monte-Carlo simulation consists of generating samples at
 random, for which some property or properties are measured.  For
@@ -17,7 +17,7 @@ and pressure, and structural properties like pair distribution
 functions and structure factors.  It is important to ensure that
 different samples are uncorrelated, otherwise a false perception of
 the accuracy is generated.  If we have to generate *N* samples, one
-way to do this is to do *n* indepdent runs, each generating $N$ / $n$
+way to do this is to do *n* indepdent runs, each generating *N* / *n*
 samples, and to combine the output.  This approach is ideally suited
 for task farming, or high-throughput parallelisation in a distributed
 computing environment.  Because of the resemblence to
@@ -36,11 +36,11 @@ requirements on the output format.
 
 ### Random number generation
 
-> *Random numbers should not be generated with a method chosen at
-   random.* --- Donald E. Knuth
+> Random numbers should not be generated with a method chosen at
+   random. &mdash; *Donald E. Knuth*
 
-> *Anyone who attempts to generate random numbers by deterministic
-  means is, of course, living in a state of sin.* --- John von Neumann
+> Anyone who attempts to generate random numbers by deterministic
+  means is, of course, living in a state of sin. &mdash; *John von Neumann*
 
 In order to work within the Map/Reduce Monte-Carlo paradigm, it is
 essential that each separate run done in parallel should have access
@@ -73,11 +73,12 @@ x = pcg64_random_d(&rng);
 ```
 (for the additional functionality for providing random integers see `pcg64.h`)
 
-In the above `seed` is an unsigned long integer which is the RNG seed,
+In the above `seed` is an unsigned long integer (`uint64_t`) 
+which is the RNG seed,
 and `seq` is another unsigned long integer which selects which stream
 is generated.  Thus to generate *n* independent streams from a common
 seed, one should set `seed` equal to the given value, and `seq` equal
-to 0 to $n$ -- 1.  The code `test-pcg64.c` demonstrates this.  If the
+to 0 to *n* &minus; 1.  The code `test-pcg64.c` demonstrates this.  If the
 output is captured in `out.txt`, for example (`-s` sets the seed, `-n`
 sets the number of random doubles, and `-m` sets the number of
 streams):
@@ -94,18 +95,24 @@ with np.printoptions(precision=3, suppress=True):
 with np.printoptions(precision=3):
     print(cov-np.eye(*np.shape(cov))/12.0)
 ```
-which prints out first the (in this case 5 &times; 5) covariance matrix, 
-and then the residuals (the variance of a random number
-uniformly distributed on [0, 1) is 1/12).  For 10^5^ the residuals should be down around 10^--4^ to 10^--5^.
+which prints out first the (in this case 5 &times; 5) covariance
+matrix, and then the residuals (the variance of a random number
+uniformly distributed on [0, 1) is 1/12).  For 10<sup>5</sup> the
+residuals should be down around 10<sup>&minus;4</sup> to
+10<sup>&minus;5</sup>.
 
-> *Egon: Don't cross [correlate] the streams.*  
-> *Peter: Why ?*  
-> *Egon: It would be bad.*  
-> *Peter: I'm fuzzy on the whole good / bad thing. What do you mean "bad" ?*  
-> *Egon: Try to imagine all life as you know it stopping instantaneously and every molecule in your body exploding at the speed of light.*  
-> *Raymond: Total protonic reversal.*  
-> *Peter: That's bad... Okay... Alright, ... important safety tip, thanks Egon.*  
-> --- Ghostbusters
+> Egon: Don't cross [correlate] the streams.  
+  Peter: Why ?  
+  Egon: It would be bad.  
+  Peter: I'm fuzzy on the whole good / bad thing. What do you mean
+  "bad" ?  
+  Egon: Try to imagine all life as you know it stopping
+  instantaneously and every molecule in your body exploding at the
+  speed of light.  
+  Raymond: Total protonic reversal.  
+  Peter: That's bad&hellip; Okay&hellip; Alright,&hellip; important
+  safety tip, thanks Egon.  
+  &mdash; *Ghostbusters*
 
 ### Copying
 
@@ -126,15 +133,16 @@ along with this program.  If not, see
 The file `pcg64.h` is licensed under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License. You may obtain a copy of the License at
-http://www.apache.org/licenses/LICENSE-2.0.
+<http://www.apache.org/licenses/LICENSE-2.0>.
 
 ### Copyright
 
 Copyright &copy; 2020 Patrick B Warren <patrickbwarren@gmail.com>.
 
 The [PCG64 RNG](https://www.pcg-random.org/) is based on 
-https://github.com/rkern/pcg64 and on 
+<https://github.com/rkern/pcg64> and on
 [NumPy](https://github.com/numpy/numpy/tree/master/numpy/random)  
+
 Copyright &copy; 2014 Melissa O'Neill <oneill@pcg-random.org>.  
 Copyright &copy; 2015 Robert Kern <robert.kern@gmail.com>.
 
