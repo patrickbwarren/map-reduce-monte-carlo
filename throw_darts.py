@@ -77,7 +77,7 @@ run_time = f'./{__file__} --header={args.header} --seed={args.seed}' \
 if not args.process: # true if args.process is None or 0
     with open(args.header + '.log', 'w') as f:
         f.write('# ' + run_time + '\n')
-        f.write('data collected for: ' + ' '.join(files.keys()) + '\n')
+        f.write('data collected for: ' + ','.join(files.keys()) + '\n')
 
 if args.verbose:
     print('Full command: ' + run_time)

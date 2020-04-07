@@ -47,41 +47,39 @@ def add_bool_arg(parser, name, default=False, help=None):
     
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("script", help="script to be run")
-parser.add_argument('--module', default=None, help='supporting module(s), default None')
-parser.add_argument('--exts', default="['.so', '.py']", help='file extensions for modules')
-parser.add_argument('--header', required=True, help='set the name of the output and intermediate files')
+parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
 parser.add_argument('--njobs', required=True, type=int, help='the number of condor jobs')
-parser.add_argument('--fast', action='store_true', help='if set, run with Mips > min mips')
-parser.add_argument('--min-mips', type=int, default=20000, help='min mips for fast option')
+parser.add_argument('--fast', action='store_true', help='run with Mips > min mips')
+parser.add_argument('--run', action='store_true', help='run the condor or DAGMan job')
+parser.add_argument('--min-mips', type=int, default=20000, help='min mips for fast option, default 20000')
+parser.add_argument('--modules', default=None, help='supporting module(s), default None')
+parser.add_argument('--extensions', default='so,py', help='file extensions for module(s), default so,py')
+parser.add_argument('--transfers', default=None, help='additional files to transfer, default None')
 add_bool_arg(parser, 'reduce', default=True, help='use DAGMan to reduce the output')
 add_bool_arg(parser, 'clean', default=True, help='clean up intermediate files')
-add_bool_arg(parser, 'launch', help='launch the condor or DAGMan job')
 add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args, rest = parser.parse_known_args()
 
-# Extract a list of modules from the argument
+# Find the files to transfer associated with the requested modules.
+# After this transfer_files will be a list of files in the current
+# directory where the file name matches any of the modules in
+# args.modules (comma-separated list) and which have an extension in
+# args.extensions (comma-separated list).  We first convert the
+# comma-separated lists to python lists, then filter a list of the
+# files in the current directory.
 
-if args.module:
-    try:
-        modules = eval(args.module)
-    except NameError:
-        modules = [args.module]
-else:
-    modules = []
-
-# Find the files to transfer associated with these modules.  After
-# this transfer_files will be a list of files in the current directory
-# which have an extension in args.exts and where the file name
-# matches any of the modules in args.modules.
+modules, extensions = [ [] if s is None else s.split(',') for s in [args.modules, args.extensions] ]
 
 file_list = [f.name for f in os.scandir() if f.is_file()] # all files in current directory
 
-if modules:
-    transfer_files = list(filter(lambda f: any(f.endswith(e) for e in eval(args.exts))
-                               and any(m in f for m in modules), file_list))
-else:
-    transfer_files = []
+transfer_files = [] if modules is None else list(filter(lambda f: any(f.endswith(f'.{e}') for e in extensions)
+                                                        and any(m in f for m in modules), file_list))
+
+# Additional files as requested
+
+if args.transfers:
+    transfer_files.extend(args.transfers.split(','))
 
 transfer_files.append(args.script) # add the script itself to the list
 
@@ -127,7 +125,7 @@ if args.verbose:
 
 if not args.reduce: # we just need to run the condor job
 
-    launch_command = 'condor_submit ' + condor_job
+    run_command = 'condor_submit ' + condor_job
 
 else: # create a DAGMan master job
 
@@ -148,13 +146,13 @@ else: # create a DAGMan master job
     if args.verbose:
         print('Created:', dag_job)
 
-    launch_command = 'condor_submit_dag -notification Never ' + dag_job
+    run_command = 'condor_submit_dag -notification Never ' + dag_job
 
-# We launch if required, otherwise print out the launch command for the user
+# We run if required, otherwise print out the run command for the user
 
-if args.launch: 
-    subprocess.call(launch_command, shell=True)
+if args.run: 
+    subprocess.call(run_command, shell=True)
 else:
-    print(launch_command)
+    print(run_command)
 
 # End of script

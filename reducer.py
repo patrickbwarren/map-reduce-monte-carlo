@@ -43,9 +43,9 @@ def add_bool_arg(parser, name, default=False, help=None):
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
 parser.add_argument('--njobs', default=None, type=int, help='the number of condor jobs')
-parser.add_argument('--exts', default="['.out', '.err']", help='file extensions for cleaning')
-add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
+parser.add_argument('--extensions', default='out,err', help='file extensions for cleaning, default out,err')
 add_bool_arg(parser, 'clean', default=False, help='clean up intermediate files')
+add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
@@ -54,9 +54,9 @@ args = parser.parse_args()
 with open(args.header + '.log') as f:
     for line in f:
         if 'data collected for' in line:
-            data_types = line.split(':')[1].split()
+            data_types = [s.strip() for s in line.split(':')[1].split(',')]
 
-# Now reduce each data tpe, using numpy to do the statistics
+# Now reduce each data type, using numpy to do the statistics
 
 import numpy as np
 
@@ -104,8 +104,9 @@ with open(args.header + '.log', 'r+') as f:
 
 if args.clean:
     for k in range(args.njobs):
-        for ext in eval(args.exts):
-            os.remove(f'{args.header}__{k}.{ext[1:]}')
+        if args.extensions:
+            for extension in args.extensions.split(','):
+                os.remove(f'{args.header}__{k}.{extension}')
         for data_type in data_types:
             os.remove(f'{args.header}_{data_type}__{k}.dat')
 
