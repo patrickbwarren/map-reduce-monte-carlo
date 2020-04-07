@@ -34,7 +34,7 @@ straightforward requirements on the output format.
 
 This is the main script for launching jobs across a condor cluster.
 ```console
-$ ./mapper.py --help
+./mapper.py --help
 usage: Map jobs onto a condor cluster
 
 Eg: ./mapper.py throw_darts.py --header=mytest --seed=12345 --ntrial=10 \
@@ -66,7 +66,7 @@ optional arguments:
 ```
 The above automatically calls `reducer.py` if `--reduce` is set.
 ```console
-$ ./reducer.py --help
+./reducer.py --help
 usage: Reduce outputs from jobs run on a condor cluster
 
 Eg: ./reducer.py --header=mytest --njobs=8
@@ -87,7 +87,7 @@ Note that by default `mapper.py` invokes `reducer.py` with the `--clean` option.
 
 Timing information on the run can be extracted with the helper script
 ```console
-$ ./timing.py --help
+./timing.py --help
 usage: Report timing data from a DAGMan run
 
 Eg: ./timing.py header
@@ -130,7 +130,7 @@ a supporting shared object (`.so`) library.
 
 The python driver script `throw_darts.py` controls a run
 ```console
-$ ./throw_darts.py --help
+./throw_darts.py --help
 usage: throw_darts.py [-h] --header HEADER [--seed SEED] [--process PROCESS]
                       [--ntrial NTRIAL] [--nthrow NTHROW] [--nbins NBINS] [-v]
 
@@ -161,7 +161,7 @@ The above code and driver script is designed to meet the requirements
 of `mapper.py` and thus for example a batch run of 8 jobs can be
 launched with the command
 ```console
-$ ./mapper.py throw_darts.py --header=mytest --seed=12345 --ntrial=10 \
+./mapper.py throw_darts.py --header=mytest --seed=12345 --ntrial=10 \
  --nthrow=10^6 --njobs=8 --module=ThrowDarts --launch
  ```
 This will result in the files `mytest_pi.dat` and `mytest_gr.dat`
@@ -169,7 +169,7 @@ being generated, containing the combined reduced data.  A plot of the
 radial distribution function can be obtained by replacing double
 underscore by tab in the file, with
 ```console
-$ sed -i.bak s/__/\\t/ mytest_gr.dat 
+sed -i.bak s/__/\\t/ mytest_gr.dat 
 ```
 
 (this keeps a backup in `mytest_gr.dat.bak`).  The resulting
