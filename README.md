@@ -12,7 +12,7 @@ HTCondor scheduling system.
 
 A typical Monte-Carlo simulation consists of generating samples at
 random, for which some property or properties are measured.  For
-example: liquid states, measuring thermodynamic properties like energy
+example for liquid states, measuring thermodynamic properties like energy
 and pressure, and structural properties like pair distribution
 functions and structure factors.  It is important to ensure that
 different samples are uncorrelated, otherwise a false perception of
@@ -43,7 +43,7 @@ requirements on the output format.
   means is, of course, living in a state of sin. &mdash; *John von Neumann*
 
 In order to work within the Map/Reduce Monte-Carlo paradigm, it is
-essential that each separate run done in parallel should have access
+essential that each separate run should have access
 to an *independent* (and thread-safe if necessary) stream of high
 quality random numbers.  Equally, it is important for regression
 testing to be able to seed these random number streams in a repeatable
@@ -53,15 +53,14 @@ family](https://www.pcg-random.org/) of random number generators
 (RNGs) can efficiently supply independent streams from a single seed.
 
 In this repository the PCG64 variant is encoded as static inline
-functions in a C header file `pcg64.h` which only needs to be included
-to give access to the RNG. The code is based on
+functions in a C header file `pcg64.h`. The code is based on
 https://github.com/rkern/pcg64 and on the PCG64 implementation in
 [NumPy](https://github.com/numpy/numpy/tree/master/numpy/random).
 
 For the purposes of the demonstration, one only needs the following
 interface:
 ```c
-#include "pcg64.h
+#include "pcg64.h"
 
 pcg64_random_t rng; // Create an instance of the RNG
 
@@ -71,16 +70,16 @@ pcg64_srandom_r(&rng, seed, seq);
 double x; // get a random double
 x = pcg64_random_d(&rng);
 ```
-(for the additional functionality for providing random integers see `pcg64.h`)
+(for functions providing random integers see `pcg64.h`)
 
-In the above `seed` is an unsigned long integer (`uint64_t`) 
-which is the RNG seed,
-and `seq` is another unsigned long integer which selects which stream
-is generated.  Thus to generate *n* independent streams from a common
-seed, one should set `seed` equal to the given value, and `seq` equal
-to 0 to *n* &minus; 1.  The code `test-pcg64.c` demonstrates this.  If the
-output is captured in `out.txt`, for example (`-s` sets the seed, `-n`
-sets the number of random doubles, and `-m` sets the number of
+In the above `seed` is an unsigned long integer (`uint64_t`) which is
+the RNG seed, and `seq` is another unsigned long integer which selects
+which stream is generated.  Thus to generate *n* independent streams
+from a common seed, one should set `seed` equal to the given value,
+and `seq` equal to 0 to *n* &minus; 1.  The code `test-pcg64.c`
+demonstrates this: `make test-pcg64` s a target in the Makefile.  If
+the output is captured in `out.txt`, for example (`-s` sets the seed,
+`-n` sets the number of random doubles, and `-m` sets the number of
 streams):
 ```bash
 ./test-pcg64 -s 12345 -n 100000 -m 5 > out.txt
@@ -95,23 +94,22 @@ with np.printoptions(precision=3, suppress=True):
 with np.printoptions(precision=3):
     print(cov-np.eye(*np.shape(cov))/12.0)
 ```
-which prints out first the (in this case 5 &times; 5) covariance
-matrix, and then the residuals (the variance of a random number
-uniformly distributed on [0, 1) is 1/12).  For 10<sup>5</sup> the
-residuals should be down around 10<sup>&minus;4</sup> to
-10<sup>&minus;5</sup>.
+This prints out first the covariance matrix (in this case 5 &times;
+5), and then the residuals (the variance of a random number uniformly
+distributed on [0, 1) is 1/12).  For 10<sup>5</sup> the residuals
+should be down around 10<sup>&minus;4</sup> to 10<sup>&minus;5</sup>.
 
-> Egon: Don't cross [correlate] the streams.  
-  Peter: Why ?  
-  Egon: It would be bad.  
-  Peter: I'm fuzzy on the whole good / bad thing. What do you mean
+> Spengler: Don't cross [correlate] the streams.  
+  Venkman: Why ?  
+  Spengler: It would be bad.  
+  Venkman: I'm fuzzy on the whole good / bad thing. What do you mean
   "bad" ?  
-  Egon: Try to imagine all life as you know it stopping
+  Spengler: Try to imagine all life as you know it stopping
   instantaneously and every molecule in your body exploding at the
   speed of light.  
-  Raymond: Total protonic reversal.  
-  Peter: That's bad&hellip; Okay&hellip; Alright,&hellip; important
-  safety tip, thanks Egon.  
+  Stantz: Total protonic reversal.  
+  Venkman: That's bad. Okay. All right. Important
+  safety tip.  Thanks, Egon.  
   &mdash; *Ghostbusters*
 
 ### Copying
