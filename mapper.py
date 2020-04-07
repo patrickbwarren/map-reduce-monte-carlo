@@ -56,6 +56,7 @@ parser.add_argument('--min-mips', type=int, default=20000, help='min mips for fa
 add_bool_arg(parser, 'reduce', default=True, help='use DAGMan to reduce the output')
 add_bool_arg(parser, 'clean', default=True, help='clean up intermediate files')
 add_bool_arg(parser, 'launch', help='launch the condor or DAGMan job')
+add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args, rest = parser.parse_known_args()
 
@@ -132,8 +133,11 @@ else: # create a DAGMan master job
 
     dag_job = args.header + '__dag.job'
 
-    opt_clean = '--clean' if args.clean else '--no-clean'
-    script = f'{sys.executable} reducer.py --header={args.header} --njobs={args.njobs} {opt_clean}'
+    opts = ['--clean' if args.clean else '--no-clean', 
+            '--prepend' if args.prepend else '--no-prepend',
+            f'--header={args.header}', f'--njobs={args.njobs}']
+    
+    script = f"{sys.executable} reducer.py {' '.join(opts)}"
 
     dag = f'JOB A {condor_job}\n' \
           f'SCRIPT POST A {script}'

@@ -37,7 +37,7 @@ time_list = []
 
 total = count = 0
 
-with open(dag_log, 'r') as f:
+with open(dag_log) as f:
     for line in f:
         if 'Total Remote' in line:
             h, m, s = [int(s) for s in line.split(',')[0].split()[2].split(':')]

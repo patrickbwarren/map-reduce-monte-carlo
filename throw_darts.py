@@ -71,12 +71,12 @@ with open(files['pi'], 'w') as f:
 
 # Summarise the run to a log file using f-strings and a line 'data collected'
 
-run_time = f'{__file__} --header={args.header} --seed={args.seed}' \
+run_time = f'./{__file__} --header={args.header} --seed={args.seed}' \
            f' --ntrial={args.ntrial} --nthrow={args.nthrow} --nbins={args.nbins}'
 
 if not args.process: # true if args.process is None or 0
     with open(args.header + '.log', 'w') as f:
-        f.write(run_time + '\n')
+        f.write('# ' + run_time + '\n')
         f.write('data collected for: ' + ' '.join(files.keys()) + '\n')
 
 if args.verbose:

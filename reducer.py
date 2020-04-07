@@ -44,13 +44,14 @@ parser = argparse.ArgumentParser(__doc__)
 parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
 parser.add_argument('--njobs', default=None, type=int, help='the number of condor jobs')
 parser.add_argument('--exts', default="['.out', '.err']", help='file extensions for cleaning')
+add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
 add_bool_arg(parser, 'clean', default=False, help='clean up intermediate files')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
 # Extract the list of data types from the log file
 
-with open(args.header + '.log', 'r') as f:
+with open(args.header + '.log') as f:
     for line in f:
         if 'data collected for' in line:
             data_types = line.split(':')[1].split()
@@ -61,7 +62,7 @@ import numpy as np
 
 def process(data_file):
     """process the data in the given file"""
-    with open(data_file, 'r') as f:
+    with open(data_file) as f:
         for line in f:
             code, val = line.split('\t')
             if code in data:
@@ -87,6 +88,18 @@ for data_type in data_types:
     if args.verbose:
         print(data_type + ' > ' + data_file)
 
+# Prepend the mapper command line extracted from the condor job description to the log file, based on
+# https://stackoverflow.com/questions/4454298/prepend-a-line-to-an-existing-file-in-python
+
+with open(args.header + '__condor.job') as f:
+    mapper_command = f.readline() # readline keeps the newline character '\n'
+
+with open(args.header + '.log', 'r+') as f:
+    contents = f.read() # slurp the existing contents
+    f.seek(0) # rewind to the beginning
+    f.write(mapper_command)
+    f.write(contents)
+        
 # Clean up output and error files
 
 if args.clean:
