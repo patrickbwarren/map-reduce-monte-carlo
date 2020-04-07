@@ -43,6 +43,8 @@ with open(dag_log, 'r') as f:
             h, m, s = [int(s) for s in line.split(',')[0].split()[2].split(':')]
             total += 3600*h + 60*m + s
             count += 1
+            if args.verbose:
+                print(line)
 
 result = f'{dag_log}: total run time = {timedelta(seconds=total)}, ' \
          f'mean run time ({count} jobs) = {timedelta(seconds=int(total/count))}'

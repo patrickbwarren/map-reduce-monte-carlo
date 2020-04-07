@@ -21,7 +21,7 @@
 
 """Reduce outputs from jobs run on a condor cluster
 
-Eg: ./reducer.py --header=mytest --njobs=10
+Eg: ./reducer.py --header=mytest --njobs=8
 """
 
 import os

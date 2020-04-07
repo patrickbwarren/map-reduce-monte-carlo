@@ -29,13 +29,12 @@ import ThrowDarts as darts
 # Parse the argument list
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--header', action='store', required=True, help='set the name of the output and/or job files')
+parser.add_argument('--header', action='store', required=True, help='set the name of the output files')
 parser.add_argument('--seed', action='store', default=12345, type=int, help='the RNG seed, default 12345')
 parser.add_argument('--process', action='store', default=None, type=int, help='process number, default None')
 parser.add_argument('--ntrial', action='store', default=10, type=int, help='number of trials, default 10')
 parser.add_argument('--nthrow', action='store', default='1000', help='number of throws per trial, default 1000')
 parser.add_argument('--nbins', action='store', default='20', type=int, help='number of bins in rdf, default 20')
-parser.add_argument('--reduce', action='store_true', help='call reducer on the data files')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
@@ -80,18 +79,9 @@ if not args.process: # true if args.process is None or 0
         f.write(run_time + '\n')
         f.write('data collected for: ' + ' '.join(files.keys()) + '\n')
 
-reducer_command = f'python reducer.py --header={args.header}'
-
 if args.verbose:
     print('Full command: ' + run_time)
-    if not args.reduce:
-        print('To reduce the data use: ' + reducer_command)
-    else:
-        print('Reduced with: ' + reducer_command)
+    print('To reduce the data use: '+ f'python reducer.py --header={args.header}')
     print('Generated: ' + args.header + '.log, ' + ', '.join(files.values()))
-
-if args.reduce:
-    import subprocess
-    subprocess.call(reducer_command, shell=True)
 
 # End of script

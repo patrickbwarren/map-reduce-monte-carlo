@@ -19,10 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Wrapper to map jobs onto a condor cluster
+"""Map jobs onto a condor cluster
 
-Eg: ./mapper.py throw_darts.py --header=mytest --seed=12345 --ntrial=10
- --nthrow=10^6  --njobs=8 --module=ThrowDarts
+Eg: ./mapper.py throw_darts.py --header=mytest --seed=12345 --ntrial=10 \
+ --nthrow=10^6 --njobs=8 --module=ThrowDarts
 """
 
 import os
@@ -49,13 +49,13 @@ parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("script", help="script to be run")
 parser.add_argument('--module', default=None, help='supporting module(s), default None')
 parser.add_argument('--exts', default="['.so', '.py']", help='file extensions for modules')
-parser.add_argument('--header', required=True, help='the name of the output and/or job files')
+parser.add_argument('--header', required=True, help='set the name of the output and intermediate files')
 parser.add_argument('--njobs', required=True, type=int, help='the number of condor jobs')
 parser.add_argument('--fast', action='store_true', help='if set, run with Mips > min mips')
 parser.add_argument('--min-mips', type=int, default=20000, help='min mips for fast option')
 add_bool_arg(parser, 'reduce', default=True, help='use DAGMan to reduce the output')
-add_bool_arg(parser, 'clean', default=True, help='clean up intermediate output files')
-add_bool_arg(parser, 'launch', help='launch the condor DAGMan master job')
+add_bool_arg(parser, 'clean', default=True, help='clean up intermediate files')
+add_bool_arg(parser, 'launch', help='launch the condor or DAGMan job')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args, rest = parser.parse_known_args()
 
