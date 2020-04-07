@@ -44,7 +44,7 @@ To build and run the dart-throwing example do `make`, followed by
 --nthrow=10^6 --njobs=8 --module=ThrowDarts --launch
 ```
 This should result in a DAGMan job being launched, which after it completes leaves a number of
-`mytest__*` jobs files, and `mytest_pi.dat` which contains the estimate of &pi;,
+`mytest__*` job files, plus `mytest_pi.dat` which contains the estimate of &pi;,
 `mytest_gr.dat` which contains the radial distribution data for the dart positions, and 
 `mytest.log` contains some log information.
 
@@ -132,14 +132,14 @@ pure python, or a python script which wraps an underlying library, or
 with some modifications a python script that itself launches a
 separate stand-alone binary package.
 
-The scrit `mapper.py` launches `--njobs` condor jobs which run the
-designated script, *passing on any unused options*.  Thus options
+The script `mapper.py` launches `--njobs` condor jobs which run the
+designated script, *passing on any unused options*.  Thus any options
 required by the script should be included in the command line as
 indicated in the example below.  In addition, the script to be run
 should accept the following options:
 
 `--header=<header>` : a string to specify the names of output files;  
-`--process=<procid>` : an integer to label data files;  
+`--process=<proc_id>` : an integer to label data files;  
 `-v`, `--verbose` should be allowed even if they don't do anything.
 
 Usually one would also include a `--seed` option which is passed onto
@@ -149,7 +149,7 @@ generate random numbers using a combination of `--seed` and
 
 For output, the script should generate data files with names
 ```
-<header>_<data_type>__<procid>.dat
+<header>_<data_type>__<proc_id>.dat
 ```
 where the `<data_type>` is a string which can be used to discriminate
 between different types of data.  Each entry (line) in a data file should be
@@ -160,20 +160,19 @@ of the form
 where `<tag>` is used to label the measurement, and `<measurement>` is
 the actual numerical value, and the two are separated by a tab (`\t`).
 
-Using tags it is possible to combine different data types
-in the same file.  One use-case exemplified by the radial distribution
-function in the example below is to incorporate a numerical value into
-the tag, for example for a radial distribution function using `gr__<r>` for `<tag>`
-with `<r>` being the bin radial distance mid-point.  The double
-underscore can be removed afterwards to clean up the data for
-downstream analysis and plotting purposes.
+Using tags it is possible to combine different data types in the same
+file.  One use-case exemplified by the radial distribution function in
+the example below is to incorporate a numerical value into the tag,
+for example `gr__<r>` with `<r>` being the bin radial distance
+mid-point.  The double underscore can be removed afterwards to clean
+up the data for downstream analysis and plotting purposes.
 
 In addition to the data files, the script should generate a log file
-of the form `<header>.log` to contain a line in the form
+of the form `<header>.log`, to contain a line in the form
 ```
 data collected for: <list_of_data_types>
 ```
-The list here tells `reducer.py` which `<data_type>` output files
+The (space-separated) list here tells `reducer.py` which `<data_type>` output files
 should be reduced.
 
 ### Outputs
@@ -268,14 +267,14 @@ underscores by tabs in the data file, as
 ```console
 sed -i.bak s/__/\\t/ mytest_gr.dat 
 ```
-(this keeps a backup in `mytest_gr.dat.bak`).  The resulting
-`mytest_gr.dat` can be visualised by plotting columns 2, 3, and 4 as
-respectively *r*, *y*, and &delta;*y* where *y* is the radial
+(this keeps a backup in `mytest_gr.dat.bak`).  The resulting data set
+can be visualised by plotting columns 2, 3, and 4 of `mytest_gr.dat`
+as respectively *r*, *y*, and &delta;*y* where *y* is the radial
 distribution function estimate (mean) and &delta;*y* is the associated
 standard error.  If you do this, note that the standard error
 decreases as *r* increases.  The reason is that there are more data
-points in the bins further away from the origin, since the area of
-the bin annulus increases with *r*.
+points in the bins further away from the origin, since the area of the
+bin annulus increases with *r*.
 
 ### Random number generation
 
@@ -355,6 +354,10 @@ above the residuals should be down around 10<sup>&minus;4</sup> to
   Venkman: That's bad. Okay. All right. Important
   safety tip.  Thanks, Egon.  
   &mdash; *Ghostbusters*
+
+In the dart throwing example, `--seed` is used to set the RNG seed
+and `--process` is used to set the sequence.  The conversion to the
+required `uint64_t` types is done in the C code.
 
 ### Copying
 
