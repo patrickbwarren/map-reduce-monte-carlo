@@ -111,7 +111,7 @@ notification = never
 universe = vanilla
 opts = {opts}
 {extra}transfer_input_files = {','.join(transfer_files)}
-executable = /usr/bin/python
+executable = {sys.executable}
 arguments = {args.script} --header={args.header} $(opts) --process=$(Process)
 output = {args.header}__$(Process).out
 error = {args.header}__$(Process).err

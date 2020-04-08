@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # This file is part of a demonstrator for Map/Reduce Monte-Carlo
 # methods.
@@ -81,7 +81,7 @@ if not args.process: # true if args.process is None or 0
 
 if args.verbose:
     print('Full command: ' + run_time)
-    print('To reduce the data use: '+ f'python reducer.py --header={args.header}')
+    print('To reduce the data use: '+ f'./reducer.py --header={args.header}')
     print('Generated: ' + args.header + '.log, ' + ', '.join(files.values()))
 
 # End of script
