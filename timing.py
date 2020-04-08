@@ -33,8 +33,6 @@ args = parser.parse_args()
 
 dag_log = f'{args.header}__dag.job.nodes.log'
 
-time_list = []
-
 total = count = 0
 
 with open(dag_log) as f:
