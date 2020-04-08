@@ -74,7 +74,7 @@ modules, extensions, transfers = [ [] if s is None else s.split(',') for s in
 
 file_list = [f.name for f in os.scandir() if f.is_file()] # all files in current directory
 
-if modules:
+if modules and extensions:
     transfers.extend(filter(lambda f: any(f.endswith(f'.{e}') for e in extensions)
                             and any(m in f for m in modules), file_list))
 
@@ -84,15 +84,12 @@ transfers.append(args.script) # add the script itself to the list
 
 condor_job = args.header + '__condor.job'
 
-# Add a requirements line if requested and extra options if
-# required (newlines are required to insert as lines)
+# Add a requirements line if requested (newlines are required to
+# insert as lines in constructing the script below).
 
-extra = ''
+extra = '' if not args.fast else f'requirements = Mips > {args.min_mips}\n'
 
-if args.fast:
-    extra += 'requirements = Mips > %i' % args.min_mips + '\n'
-
-# Reconstruct the verbose option and stick on the end of the unmatched arguments
+# Reconstruct the verbosity and stick on the end of the unmatched arguments
 
 if args.verbose:
     rest.append('-' + 'v' * args.verbose)
