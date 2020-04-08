@@ -25,6 +25,7 @@ Eg: ./reducer.py --header=mytest --njobs=8
 """
 
 import os
+import sys
 import argparse
 
 # The following code snippet comes from
@@ -44,20 +45,25 @@ parser = argparse.ArgumentParser(__doc__)
 parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
 parser.add_argument('--njobs', default=None, type=int, help='the number of condor jobs')
 parser.add_argument('--extensions', default='out,err', help='file extensions for cleaning, default out,err')
+parser.add_argument('--override', help='override list of data type')
 add_bool_arg(parser, 'clean', default=False, help='clean up intermediate files')
 add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
-# Extract the list of data types from the log file.  This looks for a line line
+# Extract the list of data types from the log file (or override).
+# In the log file, look for a line like
 # ... data collected for ... : type1,type2,type3,...
-# it splits on the ':', takes the second half, and splits again on ',' then
-# strips off any white space to recover a python list of strings (data_types)
+# split on the ':', take the second half, and split again on ',' then
+# strip off any white space to recover a python list of strings (data_types)
 
-with open(args.header + '.log') as f:
-    for line in f:
-        if 'data collected for' in line:
-            data_types = [s.strip() for s in line.split(':')[1].split(',')]
+if args.override:
+    data_types = args.override.split(',')
+else:
+    with open(args.header + '.log') as f:
+        for line in f:
+            if 'data collected for' in line:
+                data_types = [s.strip() for s in line.split(':')[1].split(',')]
 
 # Now reduce each data type, using numpy to do the statistics
 
@@ -86,7 +92,8 @@ for data_type in data_types:
             arr = np.array([float(v) for v in data[code]])
             npt = np.size(arr)
             mean = np.mean(arr)
-            var = np.var(arr, ddof=1) if npt > 1 else np.var(arr) # one degree of freedom for unbiased estimate
+            ddof = 1 if npt > 1 else 0 # one degree of freedom for unbiased estimate
+            var = np.var(arr, ddof=ddof)
             f.write('%s\t%g\t%g\t%d\n' % (code, mean, np.sqrt(var/npt), npt))
     if args.verbose:
         print(data_type + ' > ' + data_file)
@@ -96,15 +103,22 @@ for data_type in data_types:
 
 if args.prepend:
 
-    with open(args.header + '__condor.job') as f:
-        mapper_command = f.readline() # readline keeps the newline character '\n'
-        
-    with open(args.header + '.log', 'r+') as f:
-        contents = f.read() # slurp the existing contents
-        f.seek(0) # rewind to the beginning
-        f.write(mapper_command) # write the mapper command
-        f.write(contents) # then the rest of the contents
-        
+    condor_job = args.header + '__condor.job'
+
+    try:
+        with open(condor_job) as f:
+            mapper_command = f.readline() # readline keeps the newline character '\n'
+    except IOError:
+        print(f'failed to find {condor_job}, skipping prepend', file=sys.stderr)
+        mapper_command = None
+
+    if mapper_command:
+        with open(args.header + '.log', 'r+') as f:
+            contents = f.read() # slurp the existing contents
+            f.seek(0) # rewind to the beginning
+            f.write(mapper_command) # write the mapper command
+            f.write(contents) # then the rest of the contents
+
 # Clean up output and error files
 
 if args.clean:
