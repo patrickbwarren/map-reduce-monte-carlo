@@ -87,7 +87,7 @@ condor_job = args.header + '__condor.job'
 # Add a requirements line if requested (newlines are required to
 # insert as lines in constructing the script below).
 
-extra = f'requirements = Mips > {args.min_mips}\n' if args.fast else ''
+extra = f'\nrequirements = Mips > {args.min_mips}' if args.fast else ''
 
 # Reconstruct the verbosity and stick on the end of the unmatched arguments
 
@@ -103,8 +103,8 @@ should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 notification = never
 universe = vanilla
-opts = {opts}
-{extra}transfer_input_files = {','.join(transfers)}
+opts = {opts}{extra}
+transfer_input_files = {','.join(transfers)}
 executable = {sys.executable}
 arguments = {args.script} --header={args.header} $(opts) --process=$(Process)
 output = {args.header}__$(Process).out
