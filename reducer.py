@@ -67,7 +67,7 @@ def process(data_file):
     """process the data in the given file"""
     with open(data_file) as f:
         for line in f:
-            code, val = line.split('\t')
+            code, val = line.split('\t')[:2]
             if code in data:
                 data[code].append(val)
             else:
@@ -86,7 +86,7 @@ for data_type in data_types:
             arr = np.array([float(v) for v in data[code]])
             npt = np.size(arr)
             mean = np.mean(arr)
-            var = np.var(arr, ddof=1) # one degree of freedom for unbiased estimate
+            var = np.var(arr, ddof=1) if npt > 1 else np.var(arr) # one degree of freedom for unbiased estimate
             f.write('%s\t%g\t%g\t%d\n' % (code, mean, np.sqrt(var/npt), npt))
     if args.verbose:
         print(data_type + ' > ' + data_file)
@@ -94,14 +94,16 @@ for data_type in data_types:
 # Prepend the mapper command line extracted from the first line of condor job description, based on
 # https://stackoverflow.com/questions/4454298/prepend-a-line-to-an-existing-file-in-python
 
-with open(args.header + '__condor.job') as f:
-    mapper_command = f.readline() # readline keeps the newline character '\n'
+if args.prepend:
 
-with open(args.header + '.log', 'r+') as f:
-    contents = f.read() # slurp the existing contents
-    f.seek(0) # rewind to the beginning
-    f.write(mapper_command) # write the mapper command
-    f.write(contents) # then the rest of the contents
+    with open(args.header + '__condor.job') as f:
+        mapper_command = f.readline() # readline keeps the newline character '\n'
+        
+    with open(args.header + '.log', 'r+') as f:
+        contents = f.read() # slurp the existing contents
+        f.seek(0) # rewind to the beginning
+        f.write(mapper_command) # write the mapper command
+        f.write(contents) # then the rest of the contents
         
 # Clean up output and error files
 
