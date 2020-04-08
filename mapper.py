@@ -61,27 +61,23 @@ add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log f
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args, rest = parser.parse_known_args()
 
-# Find the files to transfer associated with the requested modules.
-# After this transfer_files will be a list of files in the current
+# Find the files to transfer; include files in the current
 # directory where the file name matches any of the modules in
 # args.modules (comma-separated list) and which have an extension in
 # args.extensions (comma-separated list).  We first convert the
 # comma-separated lists to python lists, then filter a list of the
 # files in the current directory.
 
-modules, extensions = [ [] if s is None else s.split(',') for s in [args.modules, args.extensions] ]
+modules, extensions, transfers = [ [] if s is None else s.split(',') for s in
+                                   [args.modules, args.extensions, args.transfers] ]
 
 file_list = [f.name for f in os.scandir() if f.is_file()] # all files in current directory
 
-transfer_files = [] if modules is None else list(filter(lambda f: any(f.endswith(f'.{e}') for e in extensions)
-                                                        and any(m in f for m in modules), file_list))
+if modules:
+    transfers.extend(filter(lambda f: any(f.endswith(f'.{e}') for e in extensions)
+                            and any(m in f for m in modules), file_list))
 
-# Additional files as requested
-
-if args.transfers:
-    transfer_files.extend(args.transfers.split(','))
-
-transfer_files.append(args.script) # add the script itself to the list
+transfers.append(args.script) # add the script itself to the list
 
 # Create the condor job file
 
@@ -110,7 +106,7 @@ when_to_transfer_output = ON_EXIT
 notification = never
 universe = vanilla
 opts = {opts}
-{extra}transfer_input_files = {','.join(transfer_files)}
+{extra}transfer_input_files = {','.join(transfers)}
 executable = {sys.executable}
 arguments = {args.script} --header={args.header} $(opts) --process=$(Process)
 output = {args.header}__$(Process).out
