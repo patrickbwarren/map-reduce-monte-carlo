@@ -87,7 +87,7 @@ condor_job = args.header + '__condor.job'
 # Add a requirements line if requested (newlines are required to
 # insert as lines in constructing the script below).
 
-extra = '' if not args.fast else f'requirements = Mips > {args.min_mips}\n'
+extra = f'requirements = Mips > {args.min_mips}\n' if args.fast else ''
 
 # Reconstruct the verbosity and stick on the end of the unmatched arguments
 
