@@ -49,7 +49,7 @@ To build and run the dart-throwing example do `make`, followed by
 ```
 This should result in a DAGMan job being launched, which after it
 completes leaves a number of `mytest__*` job files, plus
-`mytest_pi.dat` which contains the estimate of &pi; computed from the
+`mytest_pi.dat` which contains an estimate of &pi; computed from the
 number of darts which fall within a unit disc centred on the origin,
 `mytest_gr.dat` which contains the radial distribution data for the
 dart positions, and `mytest.log` contains some log information.
