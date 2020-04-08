@@ -55,6 +55,7 @@ parser.add_argument('--min-mips', type=int, default=20000, help='min mips for fa
 parser.add_argument('--modules', default=None, help='supporting module(s), default None')
 parser.add_argument('--extensions', default='so,py', help='file extensions for module(s), default so,py')
 parser.add_argument('--transfers', default=None, help='additional files to transfer, default None')
+parser.add_argument('--wipe', default='out,err', help='file extensions for cleaning, default out,err')
 add_bool_arg(parser, 'reduce', default=True, help='use DAGMan to reduce the output')
 add_bool_arg(parser, 'clean', default=True, help='clean up intermediate files')
 add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
@@ -129,7 +130,8 @@ else: # create a DAGMan master job
 
     opts = ['--clean' if args.clean else '--no-clean', 
             '--prepend' if args.prepend else '--no-prepend',
-            f'--header={args.header}', f'--njobs={args.njobs}']
+            f'--wipe={args.wipe}', f'--header={args.header}', 
+            f'--njobs={args.njobs}']
     
     script = f"{sys.executable} reducer.py {' '.join(opts)}"
 

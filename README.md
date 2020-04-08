@@ -143,7 +143,7 @@ generate random numbers using a combination of `--seed` and
 
 For output, the script should generate data files with names
 ```
-<header>_<data_type>__<proc_id>.dat
+<header>__<proc_id>_<data_type>.dat
 ```
 where the `<data_type>` is a string which can be used to discriminate
 between different types of data.  Each entry (line) in a data file should be

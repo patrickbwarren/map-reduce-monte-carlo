@@ -47,7 +47,7 @@ files = {} # dictionary that will contain file names by data type
 sub = '' if args.process is None else '__%d' % args.process
 
 for data_type in ['pi', 'gr']:
-    files[data_type] = '_'.join([args.header, data_type]) + sub + '.dat'
+    files[data_type] = f'{args.header}{sub}_{data_type}.dat'
     
 darts.initialise_target(args.seed, 0 if args.process is None else args.process, args.nbins)
 

@@ -44,8 +44,8 @@ def add_bool_arg(parser, name, default=False, help=None):
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
 parser.add_argument('--njobs', default=None, type=int, help='the number of condor jobs')
-parser.add_argument('--extensions', default='out,err', help='file extensions for cleaning, default out,err')
-parser.add_argument('--override', help='override list of data type')
+parser.add_argument('--wipe', default='out,err', help='file extensions for cleaning, default out,err')
+parser.add_argument('--override', help='override list of data types')
 add_bool_arg(parser, 'clean', default=False, help='clean up intermediate files')
 add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
@@ -83,7 +83,7 @@ for data_type in data_types:
     data = {}
     if args.njobs:
         for k in range(args.njobs):
-            process(f'{args.header}_{data_type}__{k}.dat')
+            process(f'{args.header}__{k}_{data_type}.dat')
     else:
         process(f'{args.header}_{data_type}.dat')
     data_file = f'{args.header}_{data_type}.dat'
@@ -123,10 +123,10 @@ if args.prepend:
 
 if args.clean:
     for k in range(args.njobs):
-        if args.extensions:
-            for extension in args.extensions.split(','):
+        if args.wipe:
+            for extension in args.wipe.split(','):
                 os.remove(f'{args.header}__{k}.{extension}')
         for data_type in data_types:
-            os.remove(f'{args.header}_{data_type}__{k}.dat')
+            os.remove(f'{args.header}__{k}_{data_type}.dat')
 
 # End of script
