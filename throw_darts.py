@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This file is part of a demonstrator for Map/Reduce Monte-Carlo
 # methods.

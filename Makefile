@@ -19,7 +19,7 @@
 default_target : ThrowDarts
 
 ThrowDarts_wrap.c : ThrowDarts.i throw_darts.h
-	swig -python ThrowDarts.i
+	swig -python -py3 ThrowDarts.i
 
 ThrowDarts : darts_setup.py ThrowDarts.i ThrowDarts_wrap.c throw_darts.c throw_darts.h
 	python darts_setup.py build_ext --inplace
