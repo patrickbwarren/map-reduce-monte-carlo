@@ -49,7 +49,10 @@ add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log f
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
-# Extract the list of data types from the log file
+# Extract the list of data types from the log file.  This looks for a line line
+# ... data collected for ... : type1,type2,type3,...
+# it splits on the ':', takes the second half, and splits again on ',' then
+# strips off any white space to recover a python list of strings (data_types)
 
 with open(args.header + '.log') as f:
     for line in f:
@@ -88,7 +91,7 @@ for data_type in data_types:
     if args.verbose:
         print(data_type + ' > ' + data_file)
 
-# Prepend the mapper command line extracted from the condor job description to the log file, based on
+# Prepend the mapper command line extracted from the first line of condor job description, based on
 # https://stackoverflow.com/questions/4454298/prepend-a-line-to-an-existing-file-in-python
 
 with open(args.header + '__condor.job') as f:
@@ -97,8 +100,8 @@ with open(args.header + '__condor.job') as f:
 with open(args.header + '.log', 'r+') as f:
     contents = f.read() # slurp the existing contents
     f.seek(0) # rewind to the beginning
-    f.write(mapper_command)
-    f.write(contents)
+    f.write(mapper_command) # write the mapper command
+    f.write(contents) # then the rest of the contents
         
 # Clean up output and error files
 
