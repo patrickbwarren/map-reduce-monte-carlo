@@ -21,7 +21,7 @@ default_target : ThrowDarts
 ThrowDarts_wrap.c : ThrowDarts.i throw_darts.h
 	swig -python -py3 ThrowDarts.i
 
-ThrowDarts : darts_setup.py ThrowDarts.i ThrowDarts_wrap.c throw_darts.c throw_darts.h
+ThrowDarts : darts_setup.py ThrowDarts.i ThrowDarts_wrap.c throw_darts.c
 	python3 darts_setup.py build_ext --inplace
 
 test-pcg64 : pcg64.h test-pcg64.c
