@@ -173,7 +173,7 @@ plotting purposes.
 In addition to the data files, the script should generate a log file
 of the form `<header>.log`, to contain a line in the form
 ```
-data collected for: <list_of_data_types>
+... data collected for: <list_of_data_types>
 ```
 The comma-separated list of data types here tells `reducer.py` which
 `<data_type>` output files should be reduced.
