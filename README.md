@@ -106,7 +106,7 @@ optional arguments:
   --(no-)overwrite         overwrite data files (default no)
   --(no-)clean             clean up intermediate files (default no)
   --(no-)prepend           prepend mapper call to log file (default yes)
-  -v, --verbose         increasing verbosity
+  -v, --verbose            increasing verbosity
 ```
 Note that by default `mapper.py` invokes `reducer.py` with the `--clean` option.
 
