@@ -48,8 +48,10 @@ sub = '' if args.process is None else '__%d' % args.process
 
 for data_type in ['pi', 'gr']:
     files[data_type] = f'{args.header}{sub}_{data_type}.dat'
-    
-darts.initialise_target(args.seed, 0 if args.process is None else args.process, args.nbins)
+
+stream = 0 if args.process is None else args.process
+
+darts.initialise_target(args.seed, stream, args.nbins)
 
 # Run a number of simulations.
 
@@ -67,7 +69,7 @@ for k in range(0, args.ntrial):
 
 with open(files['pi'], 'w') as f:
     for x in vals:
-        f.write('pi\t' + str(x) + '\n')
+        f.write(str(x) + '\tpi\n')
 
 # Summarise the run to a log file using f-strings and a line 'data collected'
 

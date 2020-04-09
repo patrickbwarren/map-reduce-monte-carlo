@@ -62,23 +62,24 @@ usage: Map jobs onto a condor cluster
 
        [-h] --header HEADER --njobs NJOBS [--fast] [--run]
        [--min-mips MIN_MIPS] [--modules MODULES] [--extensions EXTENSIONS]
-       [--transfers TRANSFERS] [--reduce | --no-reduce] [--clean | --no-clean]
-       [--prepend | --no-prepend] [-v]
+       [--transfers TRANSFERS] [--wipe WIPE] [--reduce | --no-reduce]
+       [--clean | --no-clean] [--prepend | --no-prepend] [-v]
        script
 
 positional arguments:
-  script           script to be run
+  script                script to be run
 
 optional arguments:
   -h, --help               show this help message and exit
   --header HEADER          set the name of the output and/or job files
   --njobs NJOBS            the number of condor jobs
-  --fast                   run with Mips > min_mips
+  --fast                   run with Mips > min mips
   --run                    run the condor or DAGMan job
-  --min-mips MIN_MIPS      min_mips for fast option, default 20000
+  --min-mips MIN_MIPS      min mips for fast option, default 20000
   --modules MODULES        supporting module(s), default None
-  --extensions EXTENSIONS  file extensions for module(s), default .so,.py
+  --extensions EXTENSIONS  file extensions for module(s), default so,py
   --transfers TRANSFERS    additional files to transfer, default None
+  --wipe WIPE              file extensions for cleaning, default out,err
   --(no-)reduce            use DAGMan to reduce the output (default yes)
   --(no-)clean             clean up intermediate files (default yes)
   --(no-)prepend           prepend mapper call to log file (default yes)
@@ -89,17 +90,23 @@ DAGMan job calls `reducer.py`:
 ```console
 usage: Reduce outputs from jobs run on a condor cluster
 
-       [-h] --header HEADER [--njobs NJOBS] [--extensions EXTENSIONS]
-       [--clean | --no-clean] [--prepend | --no-prepend] [-v]
+       [-h] [--njobs NJOBS] [--wipe WIPE] [--data-types DATA_TYPES]
+       [--overwrite | --no-overwrite] [--clean | --no-clean]
+       [--prepend | --no-prepend] [-v]
+       header
+
+positional arguments:
+  header                the name of the output and/or job files
 
 optional arguments:
   -h, --help               show this help message and exit
-  --header HEADER          set the name of the output and/or job files
   --njobs NJOBS            the number of condor jobs
-  --extensions EXTENSIONS  file extensions for cleaning, default out,err
+  --wipe WIPE              file extensions for cleaning, default out,err
+  --data-types DATA_TYPES  over-ride list of data types
+  --(no-)overwrite         overwrite data files (default no)
   --(no-)clean             clean up intermediate files (default no)
   --(no-)prepend           prepend mapper call to log file (default yes)
-  -v, --verbose            increasing verbosity
+  -v, --verbose         increasing verbosity
 ```
 Note that by default `mapper.py` invokes `reducer.py` with the `--clean` option.
 
@@ -153,7 +160,8 @@ of the form
 ```
 where `<tag>` is used to label the measurement, and `<measurement>` is
 the actual numerical value, and the two are separated by a tab (`\t`).
-Any extra information can follow a second tab (`\t`) and is ignored.
+Extra information can follow a second tab (`\t`) but is ignored by the
+reducer.
 
 Using tags it is possible to combine different data types in the same
 file.  One use-case exemplified by the radial distribution function is
@@ -180,7 +188,7 @@ output data files of the form
 ```
 These contain reduced data in the form
 ```
-<tag>\t<mean_measurement>\t<std_error>\t<ncount>
+<mean_measurement>\t<std_error>\t<tag>\t<ncount>
 ```
 reporting the mean and standard error in the measured values computed
 from the raw data from the intermediate output files (`reducer.py`
@@ -198,18 +206,19 @@ be re-run if necessary.
 
 ### Example: throwing darts 
 
-As an example of a Monte-Carlo problem, consider throwing darts at
-random in a 2-dimensional square domain with &minus;1 &le; *x* < 1 and
-&minus;1 &le; *y* < 1.  The distance *r* from the centre is measured,
-where *r*<sup>2</sup> = *x*<sup>2</sup> + *y*<sup>2</sup>.  The value
-of &pi; can be estimated by counting the number of points with *r*
-&le; 1 since the number of such points &approx; &pi;&rho; where &rho;
-= *N* / *A* is the density of points, given that *N* is the total
-number of dart throws and *A* = 4 is the area of the square domain.
-The radial distribution of dart distances from the centre should of
-course be flat, and can be computed by binning in *r* and taking into
-account the annulus areas of the bins.  This calculation is directly
-analogous to computing a radial distribution function in a liquid.
+As an example of a Monte-Carlo problem, consider throwing darts
+randomly at a 2-dimensional square domain with &minus;1 &le; *x* < 1
+and &minus;1 &le; *y* < 1.  The distance *r* from the centre is
+measured, where *r*<sup>2</sup> = *x*<sup>2</sup> + *y*<sup>2</sup>.
+The value of &pi; can be estimated by counting the number of points
+with *r* &le; 1 since the number of such points &approx; &pi;&rho;
+where &rho; = *N* / *A* is the density of points, given that *N* is
+the total number of dart throws and *A* = 4 is the area of the square
+domain.  The radial distribution of dart distances from the centre
+should of course be flat, and can be computed by binning in *r* and
+taking into account the annulus areas of the bins.  This calculation
+is directly analogous to computing a radial distribution function in a
+liquid.
 
 This Monte-Carlo problem is implemented in C in `throw_darts.h`
 and `throw_darts.c`, with `pcg64.h` for random number generation (see
@@ -238,14 +247,15 @@ optional arguments:
   --nbins NBINS      number of bins in rdf, default 20
   -v, --verbose      increasing verbosity
 ```
-This driver script produces a `<header>.log` file which contains a line
-describing the output data files (in this case `<header>_pi__*.dat`
-containing the estimates of &pi; and `<header>_gr__*.dat` containing
-the radial distribution).  Each separate trial generates its own
-estimates, and the results are appended to the data files (one can
-reduce these by hand using `reducer.py` and omitting the `--njobs` option).
-The `--process` option for `throw_darts.py` tags the output data file
-names appropriately.  
+This driver script produces a `<header>.log` file which contains a
+line describing the output data files (in this case
+`<header>__*_pi.dat` containing the estimates of &pi; and
+`<header>__*_gr.dat` containing the radial distribution).  Each
+separate trial generates its own estimates, and the results are
+appended to the data files (one can reduce these by hand using
+`reducer.py`, setting `--overwrite` and omitting the `--njobs`
+option).  The `--process` option for `throw_darts.py` tags the output
+data file names appropriately.
 
 The above code and driver script thus meet the requirements of
 `mapper.py`, and for example a batch run of 8 jobs can be launched
@@ -262,7 +272,7 @@ underscores by tabs in the data file, as
 sed -i.bak s/__/\\t/ mytest_gr.dat 
 ```
 (this keeps a backup in `mytest_gr.dat.bak`).  The resulting data set
-can be visualised by plotting columns 2, 3, and 4 of `mytest_gr.dat`
+can be visualised by plotting columns 4, 1, and 2 of `mytest_gr.dat`
 as respectively *r*, *g*(*r*), and &Delta;*g*(*r*) where *g*(*r*) is the
 radial distribution function estimate (mean) and &Delta;*g*(*r*) is the
 associated standard error.  If you do this, notice that the standard
@@ -300,19 +310,19 @@ interface:
 
 pcg64_random_t rng; // Create an instance of the RNG
 
-uint64_t seed, seq; // seed the RNG
-pcg64_srandom_r(&rng, seed, seq);
+uint64_t useed, useq; // seed the RNG
+pcg64_srandom_r(&rng, useed, ustream);
 
 double x; // get a random double
 x = pcg64_random_d(&rng);
 ```
 (for additional functions providing random integers see `pcg64.h`)
 
-In the above `seed` is an unsigned long integer (`uint64_t`) which is
-the RNG seed, and `seq` is another unsigned long integer which selects
-which stream is generated.  Thus to generate *n* independent streams
-from a common seed, one should set `seed` equal to the given value,
-and `seq` equal to 0 to *n* &minus; 1.
+In the above `useed` is an unsigned long integer (`uint64_t`) which is
+the RNG seed, and `ustream` is another unsigned long integer which
+selects which stream is generated.  Thus to generate *n* independent
+streams from a common seed, one should set `useed` equal to the given
+value, and `ustream` equal to 0 to *n* &minus; 1.
 
 The code `test-pcg64.c` demonstrates this (`make test-pcg64` is a
 target in the `Makefile`).  Running this for example with
@@ -350,8 +360,8 @@ above the residuals should be down around 10<sup>&minus;4</sup> to
   safety tip.  Thanks, Egon.  
   &mdash; *Ghostbusters*
 
-In the dart throwing example, `--seed` is used to set the RNG seed
-and `--process` is used to set the sequence.  The conversion to the
+In the dart throwing example, `--seed` is used to set the RNG seed and
+`--process` is used to select the stream.  The conversion to the
 required `uint64_t` types is done in the C code.
 
 ### Copying

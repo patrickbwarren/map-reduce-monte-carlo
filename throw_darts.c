@@ -26,8 +26,8 @@ along with this file.  If not, see <http://www.gnu.org/licenses/>.
 #include "pcg64.h"
 #include "throw_darts.h"
 
-static pcg64_random_t rng;   /* PCG64 random number generator */
-static uint64_t seed, seq;   /* The RNG seed and sequence, for reporting purposes */
+static pcg64_random_t rng;      /* PCG64 random number generator */
+static uint64_t useed, ustream; /* The RNG seed and stream */
 
 static int verbose = 0;
 
@@ -40,10 +40,10 @@ static double delg;    /* bin spacing in r */
 
 /* Initialise with seed and sequence, and number of bins */
 
-void initialise_target(int iseed, int iseq, int inbins) {
-  seed = (uint64_t)iseed;
-  seq = (uint64_t)iseq;
-  pcg64_srandom_r(&rng, seed, seq);
+void initialise_target(int iseed, int istream, int inbins) {
+  useed = (uint64_t)iseed;
+  ustream = (uint64_t)istream;
+  pcg64_srandom_r(&rng, useed, ustream);
   nbins = inbins; delg = 1.0 / nbins;
   if ((gr = (int *) malloc((1+nbins)*sizeof(int))) == NULL) {
     fprintf(stderr, "no space for gr at line %i in %s\n", __LINE__, __FILE__);
@@ -99,7 +99,7 @@ void gr_write(char *filename, char *mode) {
       r = delg * (ig+0.5);
       area_shell = M_PI*((ig+1)*(ig+1) - ig*ig)*delg*delg;
       g = (double)gr[ig] * area_square / ((double)norm * area_shell);
-      fprintf(fp, "gr__%g\t%g\n", r, g);
+      fprintf(fp, "%g\tgr__%g\n", g, r);
     }
     fclose(fp);
   }
@@ -108,11 +108,14 @@ void gr_write(char *filename, char *mode) {
   }
 }
 
+void print_uint64(char *s, uint64_t v) {
+  printf("uint64 %s = %#018" PRIx64 " = %" PRIu64 "ULL\n", s, v, v);
+}
 void report() {
   int ig, ncount = 0;
   for (ig=0; ig<nbins; ig++) ncount += gr[ig];
-  printf("uint64 seed = %#018" PRIx64 " = %" PRIu64 "ULL\n", seed, seed);
-  printf("uint64 seq  = %#018" PRIx64 " = %" PRIu64 "ULL\n", seq, seq);
+  print_uint64("seed", useed);
+  print_uint64("stream", ustream);
   printf("nsuccess / nthrows = %i / %i\n", ncount, ncount + gr[nbins]);
 }
 

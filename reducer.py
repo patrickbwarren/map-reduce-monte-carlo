@@ -25,7 +25,6 @@ Eg: ./reducer.py --header=mytest --njobs=8
 """
 
 import os
-import sys
 import argparse
 
 # The following code snippet comes from
@@ -42,10 +41,11 @@ def add_bool_arg(parser, name, default=False, help=None):
 # The arguments here are used to construct the list of data files
 
 parser = argparse.ArgumentParser(__doc__)
-parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
+parser.add_argument('header', help='the name of the output and/or job files')
 parser.add_argument('--njobs', default=None, type=int, help='the number of condor jobs')
 parser.add_argument('--wipe', default='out,err', help='file extensions for cleaning, default out,err')
-parser.add_argument('--override', help='override list of data types')
+parser.add_argument('--data-types', default=None, help='over-ride list of data types')
+add_bool_arg(parser, 'overwrite', default=False, help='overwrite data files')
 add_bool_arg(parser, 'clean', default=False, help='clean up intermediate files')
 add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
@@ -57,8 +57,8 @@ args = parser.parse_args()
 # split on the ':', take the second half, and split again on ',' then
 # strip off any white space to recover a python list of strings (data_types)
 
-if args.override:
-    data_types = args.override.split(',')
+if args.data_types:
+    data_types = args.data_types.split(',')
 else:
     with open(args.header + '.log') as f:
         for line in f:
@@ -73,11 +73,11 @@ def process(data_file):
     """process the data in the given file"""
     with open(data_file) as f:
         for line in f:
-            code, val = line.split('\t')[:2]
-            if code in data:
-                data[code].append(val)
+            val, tag = line.rstrip('\n').split('\t')[:2]
+            if tag in data:
+                data[tag].append(val)
             else:
-                data[code] = [val]
+                data[tag] = [val]
 
 for data_type in data_types:
     data = {}
@@ -87,31 +87,29 @@ for data_type in data_types:
     else:
         process(f'{args.header}_{data_type}.dat')
     data_file = f'{args.header}_{data_type}.dat'
-    with open(data_file, 'w') as f:
-        for code in data:
-            arr = np.array([float(v) for v in data[code]])
-            npt = np.size(arr)
-            mean = np.mean(arr)
-            ddof = 1 if npt > 1 else 0 # one degree of freedom for unbiased estimate
-            var = np.var(arr, ddof=ddof)
-            f.write('%s\t%g\t%g\t%d\n' % (code, mean, np.sqrt(var/npt), npt))
-    if args.verbose:
-        print(data_type + ' > ' + data_file)
+    if not args.overwrite and os.path.exists(data_file):
+        print(f'{data_file} exists, use --overwrite option to overwrite')
+    else:
+        with open(data_file, 'w') as f:
+            for tag in data:
+                arr = np.array([float(v) for v in data[tag]])
+                mean, var, npt = np.mean(arr), np.var(arr, ddof=1), np.size(arr)
+                std_err = np.sqrt(var / npt)
+                f.write('%g\t%g\t%s\t%d\n' % (mean, std_err, tag, npt))
+        if args.verbose:
+            print(f'{data_type} > {data_file}')
 
 # Prepend the mapper command line extracted from the first line of condor job description, based on
 # https://stackoverflow.com/questions/4454298/prepend-a-line-to-an-existing-file-in-python
 
 if args.prepend:
-
     condor_job = args.header + '__condor.job'
-
     try:
         with open(condor_job) as f:
             mapper_command = f.readline() # readline keeps the newline character '\n'
     except IOError:
-        print(f'failed to find {condor_job}, skipping prepend', file=sys.stderr)
+        print(f'failed to find {condor_job}, skipping prepend')
         mapper_command = None
-
     if mapper_command:
         with open(args.header + '.log', 'r+') as f:
             contents = f.read() # slurp the existing contents

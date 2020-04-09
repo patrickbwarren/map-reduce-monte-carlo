@@ -59,9 +59,9 @@ static inline uint64_t pcg_output_xsl_rr_128_64(pcg128_t state) {
 }
 
 static inline void pcg64_srandom_r(pcg64_random_t* rng, uint64_t seed,
-				   uint64_t seq) {
+				   uint64_t stream) {
   rng->state = 0U;
-  rng->inc = ((__uint128_t)seq << 1u) | 1u;
+  rng->inc = ((__uint128_t)stream << 1u) | 1u;
   pcg_setseq_128_step_r(rng);
   rng->state += (__uint128_t)seed;
   pcg_setseq_128_step_r(rng);

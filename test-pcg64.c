@@ -36,28 +36,30 @@ static struct option long_options[] = {
 };
 
 int main(int argc, char** argv) {
-  int i, k, c;
+  int stream, k, ret_val;
   int mstreams = 2;
   int nrandom = 1000;
   int option_index = 0;
+  char c;
   uint64_t seed = 12345ULL;
   pcg64_random_t *rng; /* for an array of these things */
   while (1) {
-    c = getopt_long(argc, argv, "s:n:m:", long_options, &option_index);
-    if (c == -1) break;
-    switch (c) {
+    ret_val = getopt_long(argc, argv, "s:n:m:", long_options, &option_index);
+    if (ret_val == -1) break;
+    switch (ret_val) {
     case 's': seed = (uint64_t)atoi(optarg); break;
     case 'n': nrandom = atoi(optarg); break;
     case 'm': mstreams = atoi(optarg); break;
     }
   }
   rng = (pcg64_random_t *)malloc(mstreams*sizeof(pcg64_random_t));
-  for (i=0; i<mstreams; i++) {
-    pcg64_srandom_r(&rng[i], seed, (uint64_t)i); /* fixed seed, seq advances */
+  for (stream=0; stream<mstreams; stream++) {
+    pcg64_srandom_r(&rng[stream], seed, (uint64_t)stream);
   }
   for (k=0; k<nrandom; k++) {
-    for (i=0; i<mstreams; i++) {
-      printf("%0.17g%c", pcg64_random_d(&rng[i]), (i<mstreams-1)?'\t':'\n');
+    for (stream=0; stream<mstreams; stream++) {
+      c = (stream < mstreams-1) ? '\t' : '\n';
+      printf("%0.17g%c", pcg64_random_d(&rng[stream]), c);
     }
   }
   return 0;
