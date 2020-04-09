@@ -156,7 +156,7 @@ where the `<data_type>` is a string which can be used to discriminate
 between different types of data.  Each entry (line) in a data file should be
 of the form
 ```
-<tag>\t<measurement>[\t<rest-of-line-ignored>]
+<measurement>\t<tag>[\t<rest-of-line-ignored>]
 ```
 where `<tag>` is used to label the measurement, and `<measurement>` is
 the actual numerical value, and the two are separated by a tab (`\t`).
