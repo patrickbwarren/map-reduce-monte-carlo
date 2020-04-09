@@ -30,7 +30,7 @@ term this Map/Reduce Monte-Carlo.
 
 This repository contains python scripts `mapper.py` and `reducer.py`,
 and an example code that illustrates the approach.  The scripts can
-launch pretty much any kind of scripted Monte-Carlo code across a
+run pretty much any kind of scripted Monte-Carlo code across a
 condor cluster, with some straightforward requirements on the output
 format.
 
@@ -77,7 +77,8 @@ optional arguments:
   --run                    run the condor or DAGMan job
   --min-mips MIN_MIPS      min mips for fast option, default 20000
   --modules MODULES        supporting module(s), default None
-  --extensions EXTENSIONS  file extensions for module(s), default so,py
+  --extensions EXTENSIONS  file extensions for module(s), default so,py,pm
+  --executable EXECUTABLE  executable to run script, if not default
   --transfers TRANSFERS    additional files to transfer, default None
   --wipe WIPE              file extensions for cleaning, default out,err
   --(no-)reduce            use DAGMan to reduce the output (default yes)
@@ -85,6 +86,9 @@ optional arguments:
   --(no-)prepend           prepend mapper call to log file (default yes)
   -v, --verbose            increasing verbosity
 ```
+The default executable for the script to be run is determined from the
+executable that runs `mapper.py`, for example `/usr/bin/python3`.
+
 After the jobs have completed, if `--reduce` is set (the default) the
 DAGMan job calls `reducer.py`:
 ```console

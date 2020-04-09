@@ -53,7 +53,8 @@ parser.add_argument('--fast', action='store_true', help='run with Mips > min mip
 parser.add_argument('--run', action='store_true', help='run the condor or DAGMan job')
 parser.add_argument('--min-mips', type=int, default=20000, help='min mips for fast option, default 20000')
 parser.add_argument('--modules', default=None, help='supporting module(s), default None')
-parser.add_argument('--extensions', default='so,py', help='file extensions for module(s), default so,py')
+parser.add_argument('--extensions', default='so,py,pm', help='file extensions for module(s), default so,py,pm')
+parser.add_argument('--executable', default=sys.executable, help=f'executable to run script, if not {sys.executable}')
 parser.add_argument('--transfers', default=None, help='additional files to transfer, default None')
 parser.add_argument('--wipe', default='out,err', help='file extensions for cleaning, default out,err')
 add_bool_arg(parser, 'reduce', default=True, help='use DAGMan to reduce the output')
@@ -105,7 +106,7 @@ notification = never
 universe = vanilla
 opts = {opts}{extra}
 transfer_input_files = {','.join(transfers)}
-executable = {sys.executable}
+executable = {args.executable}
 arguments = {args.script} --header={args.header} $(opts) --process=$(Process)
 output = {args.header}__$(Process).out
 error = {args.header}__$(Process).err
@@ -129,7 +130,7 @@ else: # create a DAGMan master job
             '--prepend' if args.prepend else '--no-prepend',
             f'--wipe={args.wipe}', f'--njobs={args.njobs}']
     
-    script = f"{sys.executable} reducer.py {args.header} {' '.join(opts)}"
+    script = f"{args.executable} reducer.py {args.header} {' '.join(opts)}"
 
     dag = f'JOB A {condor_job}\n' \
           f'SCRIPT POST A {script}'

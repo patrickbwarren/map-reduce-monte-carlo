@@ -111,11 +111,15 @@ if args.prepend:
         print(f'failed to find {condor_job}, skipping prepend')
         mapper_command = None
     if mapper_command:
-        with open(args.header + '.log', 'r+') as f:
-            contents = f.read() # slurp the existing contents
-            f.seek(0) # rewind to the beginning
-            f.write(mapper_command) # write the mapper command
-            f.write(contents) # then the rest of the contents
+        log_file = args.header + '.log'
+        try:
+            with open(log_file, 'r+') as f:
+                contents = f.read() # slurp the existing contents
+                f.seek(0) # rewind to the beginning
+                f.write(mapper_command) # write the mapper command
+                f.write(contents) # then the rest of the contents
+        except IOError:
+            print(f'failed to find {log_file}, skipping prepend')
 
 # Clean up output and error files
 
