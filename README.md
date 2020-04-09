@@ -71,7 +71,7 @@ positional arguments:
 
 optional arguments:
   -h, --help               show this help message and exit
-  --header HEADER          set the name of the output and/or job files
+  --header HEADER          set the name of the output and job files
   --njobs NJOBS            the number of condor jobs
   --fast                   run with Mips > min mips
   --run                    run the condor or DAGMan job
@@ -96,7 +96,7 @@ usage: Reduce outputs from jobs run on a condor cluster
        header
 
 positional arguments:
-  header                the name of the output and/or job files
+  header                the name of the output and job files
 
 optional arguments:
   -h, --help               show this help message and exit
@@ -118,7 +118,7 @@ usage: Report timing data from a DAGMan run
        [-h] [-v] header
 
 positional arguments:
-  header         the name of the output and/or job files
+  header         the name of the output and job files
 
 optional arguments:
   -h, --help     show this help message and exit

@@ -41,7 +41,7 @@ def add_bool_arg(parser, name, default=False, help=None):
 # The arguments here are used to construct the list of data files
 
 parser = argparse.ArgumentParser(__doc__)
-parser.add_argument('header', help='the name of the output and/or job files')
+parser.add_argument('header', help='the name of the output and job files')
 parser.add_argument('--njobs', default=None, type=int, help='the number of condor jobs')
 parser.add_argument('--wipe', default='out,err', help='file extensions for cleaning, default out,err')
 parser.add_argument('--data-types', default=None, help='over-ride list of data types')

@@ -47,7 +47,7 @@ def add_bool_arg(parser, name, default=False, help=None):
     
 parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("script", help="script to be run")
-parser.add_argument('--header', required=True, help='set the name of the output and/or job files')
+parser.add_argument('--header', required=True, help='set the name of the output and job files')
 parser.add_argument('--njobs', required=True, type=int, help='the number of condor jobs')
 parser.add_argument('--fast', action='store_true', help='run with Mips > min mips')
 parser.add_argument('--run', action='store_true', help='run the condor or DAGMan job')

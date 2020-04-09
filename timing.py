@@ -27,7 +27,7 @@ import argparse
 from datetime import timedelta
 
 parser = argparse.ArgumentParser(__doc__)
-parser.add_argument('header', help='the name of the output and/or job files')
+parser.add_argument('header', help='the name of the output and job files')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
