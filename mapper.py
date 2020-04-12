@@ -22,7 +22,7 @@
 """Map jobs onto a condor cluster
 
 Eg: ./mapper.py throw_darts.py --header=mytest --seed=12345 --ntrial=10 \
- --nthrow=10^6 --njobs=8 --module=ThrowDarts
+ --nthrow=10^6 --njobs=8 --module=ThrowDarts --run
 """
 
 import os
