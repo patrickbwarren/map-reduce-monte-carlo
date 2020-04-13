@@ -20,7 +20,7 @@
 
 """Report timing data from a DAGMan run
 
-Eg: ./timing.py header
+Eg: ./timing.py header, or headre__dag.job.nodes.log (the tail gets cut off after the '__')
 """
 
 import argparse
@@ -31,7 +31,9 @@ parser.add_argument('header', help='the name of the output and job files')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
-dag_log = f'{args.header}__dag.job.nodes.log'
+header = args.header.split('__')[0]
+
+dag_log = f'{header}__dag.job.nodes.log'
 
 total = count = 0
 
