@@ -1,4 +1,4 @@
-## Map/Reduce Monte-Carlo framework
+## Map/Reduce Monte-Carlo
 
 Provides a framework for high-throughput parallelisation of
 Monte-Carlo codes in a distributed computing environment, using the
