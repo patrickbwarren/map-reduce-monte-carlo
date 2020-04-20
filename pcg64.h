@@ -45,6 +45,8 @@ typedef struct {
   { PCG_128BIT_CONSTANT(0x979c9a98d8462005ULL, 0x7d3e9cb6cfe0549bULL),	\
       PCG_128BIT_CONSTANT(0x0000000000000001ULL, 0xda3e39cb94b95bdbULL) }
 
+#define A_JOLLY_BIG_NUMBER 9007199254740992.0 /* actually, 2^53 */
+
 static inline uint64_t pcg_rotr_64(uint64_t value, unsigned int rot) {
   return (value >> rot) | (value << ((- rot) & 63));
 }
@@ -58,19 +60,27 @@ static inline uint64_t pcg_output_xsl_rr_128_64(pcg128_t state) {
 		     (uint64_t)state, state >> 122u);
 }
 
+/* Initialise the RNG with a uint64 seed and select one of the
+   uint64_t streams. */
+
 static inline void pcg64_srandom_r(pcg64_random_t* rng, uint64_t seed,
 				   uint64_t stream) {
   rng->state = 0U;
-  rng->inc = ((__uint128_t)stream << 1u) | 1u;
+  rng->inc = ((pcg128_t)stream << 1u) | 1u;
   pcg_setseq_128_step_r(rng);
-  rng->state += (__uint128_t)seed;
+  rng->state += (pcg128_t)seed;
   pcg_setseq_128_step_r(rng);
 }
+
+/* Return a random uint64_t integer. */
 
 static inline uint64_t pcg64_random_r(pcg64_random_t* rng) {
   pcg_setseq_128_step_r(rng);
   return pcg_output_xsl_rr_128_64(rng->state);
 }
+
+/* Return a bounded random uint64 integer, greater than or equal to
+   zero but less than the uint64_t integer bound. */
 
 static inline uint64_t pcg64_boundedrand_r(pcg64_random_t* rng,
 					   uint64_t bound) {
@@ -82,9 +92,11 @@ static inline uint64_t pcg64_boundedrand_r(pcg64_random_t* rng,
   }
 }
 
+/* Return a random double. The */
+
 static inline double pcg64_random_d(pcg64_random_t* rng) {
   uint64_t x = pcg64_random_r(rng);
-  return (x >> 11) * (1.0 / 9007199254740992.0);
+  return (x >> 11) * (1.0 / A_JOLLY_BIG_NUMBER);
 }
 
 #endif /* PCG64_H_INCLUDED */
