@@ -33,13 +33,12 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--header', required=True, help='set the name of the output files')
 parser.add_argument('--seed', default=12345, type=int, help='the RNG seed, default 12345')
 parser.add_argument('--process', default=None, type=int, help='process number, default None')
-parser.add_argument('--ntrial', default='10', help='number of trials, default 10')
+parser.add_argument('--ntrial', default=10, type=int, help='number of trials, default 10')
 parser.add_argument('--nthrow', default='1000', help='number of throws per trial, default 1000')
 parser.add_argument('--nbins', default='20', type=int, help='number of bins in rdf, default 20')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args = parser.parse_args()
 
-ntrial = eval(args.ntrial.replace('^', '**')) # catch 10^6 etc
 nthrow = eval(args.nthrow.replace('^', '**')) # catch 10^6 etc
 
 darts.set_verbosity(args.verbose)
@@ -57,9 +56,9 @@ darts.initialise_target(args.seed, stream, args.nbins)
 
 # Run a number of simulations.
 
-vals = np.zeros(ntrial) # initialise array to save pi estimates
+vals = np.zeros(args.ntrial) # initialise array to save pi estimates
 
-for k in range(0, ntrial):
+for k in range(0, args.ntrial):
     darts.reset()
     darts.throw(nthrow)
     vals[k] = darts.pi_estimate()

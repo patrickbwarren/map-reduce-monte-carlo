@@ -20,7 +20,7 @@
 
 """setup.py file for Map/Reduce Monte-Carlo darts example"""
 
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 ThrowDarts_module = Extension('_ThrowDarts', sources=['ThrowDarts_wrap.c', 'throw_darts.c'])
 
