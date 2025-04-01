@@ -362,7 +362,6 @@ above the residuals should be down around 10<sup>&minus;4</sup> to
   Stantz: Total protonic reversal.  
   Venkman: That's bad. Okay. All right. Important
   safety tip.  Thanks, Egon.  
-  &mdash; *Ghostbusters*
 
 In the dart throwing example, `--seed` is used to set the RNG seed and
 `--process` is used to select the stream.  The conversion to the

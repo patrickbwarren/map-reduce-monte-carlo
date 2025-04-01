@@ -111,6 +111,7 @@ void gr_write(char *filename, char *mode) {
 void print_uint64(char *s, uint64_t v) {
   printf("uint64 %s = %#018" PRIx64 " = %" PRIu64 "ULL\n", s, v, v);
 }
+
 void report() {
   int ig, ncount = 0;
   for (ig=0; ig<nbins; ig++) ncount += gr[ig];

@@ -99,21 +99,21 @@ opts = ' '.join(rest) # now contains all the unmatched arguments
 
 # The actual job description using an f-string
 
-job = f"""# {command_line}
-should_transfer_files = YES
-when_to_transfer_output = ON_EXIT
-notification = never
-universe = vanilla
-opts = {opts}{extra}
-transfer_input_files = {','.join(transfers)}
-executable = {args.executable}
-arguments = {args.script} --header={args.header} $(opts) --process=$(Process)
-output = {args.header}__$(Process).out
-error = {args.header}__$(Process).err
-queue {args.njobs}"""
+lines = [f'# {command_line}',
+         'should_transfer_files = YES',
+         'when_to_transfer_output = ON_EXIT',
+         'notification = never',
+         'universe = vanilla',
+         f'opts = {opts}{extra}',
+         'transfer_input_files = ' + ','.join(transfers),
+         f'executable = {args.executable}',
+         f'arguments = {args.script} --header={args.header} $(opts) --process=$(Process)',
+         f'output = {args.header}__$(Process).out',
+         f'error = {args.header}__$(Process).err',
+         f'queue {args.njobs}']
 
 with open(condor_job, 'w') as f:
-    f.write(job + '\n')
+    f.write('\n'.join(lines) + '\n')
 
 if args.verbose:
     print('Created:', condor_job)
@@ -132,11 +132,11 @@ else: # create a DAGMan master job
     
     script = f"{args.executable} reducer.py {args.header} {' '.join(opts)}"
 
-    dag = f'JOB A {condor_job}\n' \
-          f'SCRIPT POST A {script}'
+    lines = [f'JOB A {condor_job}',
+             f'SCRIPT POST A {script}']
 
     with open(dag_job, 'w') as f:
-        f.write(dag + '\n')
+        f.write('\n'.join(lines) + '\n')
 
     if args.verbose:
         print('Created:', dag_job)
