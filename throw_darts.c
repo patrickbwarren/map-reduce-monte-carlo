@@ -89,7 +89,7 @@ double pi_estimate() {
 
 void gr_write(char *filename, char *mode) {
   int ig, norm = 0;
-  double r, g, area_shell, area_square = 4.0;
+  double r, g, area_annulus, area_square = 4.0;
   FILE *fp;
   if ((fp = fopen(filename, mode)) == NULL) {
     printf("gr_write: %s could not be opened\n", filename); 
@@ -97,8 +97,8 @@ void gr_write(char *filename, char *mode) {
     for (ig=0; ig<=nbins; ig++) norm += gr[ig];
     for (ig=0; ig<nbins; ig++) {
       r = delg * (ig+0.5);
-      area_shell = M_PI*((ig+1)*(ig+1) - ig*ig)*delg*delg;
-      g = (double)gr[ig] * area_square / ((double)norm * area_shell);
+      area_annulus = M_PI*((ig+1)*(ig+1) - ig*ig)*delg*delg;
+      g = (double)gr[ig] * area_square / ((double)norm * area_annulus);
       fprintf(fp, "%g\tgr__%g\n", g, r);
     }
     fclose(fp);
