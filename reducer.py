@@ -94,8 +94,8 @@ for data_type in data_types:
             for tag in data:
                 arr = np.array([float(v) for v in data[tag]])
                 mean, var, npt = np.mean(arr), np.var(arr, ddof=1), np.size(arr)
-                std_err = np.sqrt(var / npt)
-                f.write('%g\t%g\t%s\t%d\n' % (mean, std_err, tag, npt))
+                sem = np.sqrt(var / npt) # standard error in the mean
+                f.write('%g\t%g\t%s\t%d\n' % (mean, sem, tag, npt))
         if args.verbose:
             print(f'{data_type} > {data_file}')
 
