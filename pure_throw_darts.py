@@ -19,6 +19,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
 
+# Can be run with map/reduce as for example,
+# ./mapper.py pure_throw_darts.py --header=puretest--seed=12345 --ntrial=10 --nthrow=10^5 --njobs=20 --run
+
 """Throw darts at a target to estimate pi, and measure radial distribution (pure python version)
 
 Eg: ./throw_darts.py --header=mytest --seed=12345 --ntrial=100 --nthrow=10^6 -v
