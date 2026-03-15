@@ -145,12 +145,14 @@ should accept the following options:
 
 `--header=<header>` : a string to specify the names of output files;  
 `--process=<proc_id>` : an integer to label data files;  
+`--njobs=<njobs>` : should be allowed, even if not used;  
 `-v`, `--verbose` : should be allowed even if they don't do anything.
 
 Usually one would also include a `--seed` option which is passed onto
-each instance of the script unchanged.  Thus the script should
-generate random numbers using a combination of `--seed` and
-`--process`.  How this might be done is detailed below.
+each instance of the script unchanged.  Thus the script should create
+a random number stream using a combination of `--seed`, `--process`,
+and `--njobs` (if required).  How this might be done is detailed
+below.
 
 For output, the script should generate data files with names
 ```
@@ -301,6 +303,11 @@ way.  Fortunately there are modern solutions to this problem, for
 instance the [permutation congruential generator (PCG)
 family](https://www.pcg-random.org/) of random number generators
 (RNGs) can efficiently supply independent streams from a single seed.
+
+Alternatively, in a pure python implementation, one can use the
+functionality of a NumPy RNG generator to spawn a number of streams to
+correspond to the number of jobs, and select the appropriate one of
+these using the process id that is passed to an individual job.
 
 In this repository the PCG64 variant is encoded as static inline
 functions in a C header file `pcg64.h`. The code is based on

@@ -49,8 +49,8 @@ parser = argparse.ArgumentParser(__doc__)
 parser.add_argument("script", help="script to be run")
 parser.add_argument('--header', required=True, help='set the name of the output and job files')
 parser.add_argument('--njobs', required=True, type=int, help='the number of condor jobs')
-parser.add_argument('--fast', action='store_true', help='run with Mips > min mips')
 parser.add_argument('--run', action='store_true', help='run the condor or DAGMan job')
+parser.add_argument('--fast', action='store_true', help='run with Mips > min mips')
 parser.add_argument('--min-mips', type=int, default=20000, help='min mips for fast option, default 20000')
 parser.add_argument('--modules', default=None, help='supporting module(s), default None')
 parser.add_argument('--extensions', default='so,py,pm', help='file extensions for module(s), default so,py,pm')
@@ -62,6 +62,8 @@ add_bool_arg(parser, 'clean', default=True, help='clean up intermediate files')
 add_bool_arg(parser, 'prepend', default=True, help='prepend mapper call to log file')
 parser.add_argument('-v', '--verbose', action='count', default=0, help='increasing verbosity')
 args, rest = parser.parse_known_args()
+
+header, njobs = args.header, args.njobs
 
 # Find the files to transfer; include files in the current
 # directory where the file name matches any of the modules in
@@ -83,7 +85,7 @@ transfers.append(args.script) # add the script itself to the list
 
 # Create the condor job file
 
-condor_job = args.header + '__condor.job'
+condor_job = header + '__condor.job'
 
 # Add a requirements line if requested (newlines are required to
 # insert as lines in constructing the script below).
@@ -107,10 +109,10 @@ lines = [f'# {command_line}',
          f'opts = {opts}{extra}',
          'transfer_input_files = ' + ','.join(transfers),
          f'executable = {args.executable}',
-         f'arguments = {args.script} --header={args.header} $(opts) --process=$(Process)',
-         f'output = {args.header}__$(Process).out',
-         f'error = {args.header}__$(Process).err',
-         f'queue {args.njobs}']
+         f'arguments = {args.script} --header={header} $(opts) --process=$(Process) --njobs={njobs}',
+         f'output = {header}__$(Process).out',
+         f'error = {header}__$(Process).err',
+         f'queue {njobs}']
 
 with open(condor_job, 'w') as f:
     f.write('\n'.join(lines) + '\n')
@@ -124,13 +126,13 @@ if not args.reduce: # we just need to run the condor job
 
 else: # create a DAGMan master job
 
-    dag_job = args.header + '__dag.job'
+    dag_job = header + '__dag.job'
 
     opts = ['--clean' if args.clean else '--no-clean', 
             '--prepend' if args.prepend else '--no-prepend',
-            f'--wipe={args.wipe}', f'--njobs={args.njobs}']
+            f'--wipe={args.wipe}', f'--njobs={njobs}']
     
-    script = f"{args.executable} reducer.py {args.header} {' '.join(opts)}"
+    script = f"{args.executable} reducer.py {header} {' '.join(opts)}"
 
     lines = [f'JOB A {condor_job}',
              f'SCRIPT POST A {script}']
